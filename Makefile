@@ -74,7 +74,7 @@ up:                  ## Bring up the FULL stack (infra + observability + service
 	@echo "🔐 Starting license-checker…"
 	@$(COMPOSE) $(COMPOSE_FILES) up -d license-checker 2>&1 | tail -3 || true
 	@$(MAKE) -s _wait-license
-	@echo "🚀 Starting infra + application services… (observability comes later: make obs-up)"
+	@echo "🚀 Starting infra + application services…"
 	@$(COMPOSE) $(COMPOSE_FILES) up -d \
 	  oracle postgres mongodb redis cassandra elasticsearch kafka rabbitmq transit-gateway-proxy \
 	  otel-collector jaeger prometheus grafana loki alertmanager fluent-bit \
@@ -283,7 +283,7 @@ smoke:               ## End-to-end smoke (login → balance → UPI pay → loan
 
 urls:                ## Print all useful URLs
 	@echo "  🏦  Portal    : $(PORTAL)        (login: $(CUST) / $(PASS))"
-	@echo "  📊  Observability UIs (Grafana, Jaeger, Prometheus, Loki): available after make obs-up"
+	
 
 # ──────────────────────────────────────────────────────────────────────────────
 #  LOGS
