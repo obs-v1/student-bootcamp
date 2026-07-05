@@ -15,7 +15,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -32,6 +32,10 @@ services:
       SERVICE_NAME: aadhaar-adapter
       SERVICE_PORT: '8032'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -71,7 +75,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -88,6 +92,10 @@ services:
       SERVICE_NAME: account-service
       SERVICE_PORT: '8001'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -169,7 +177,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -186,6 +194,10 @@ services:
       SERVICE_NAME: aml-service
       SERVICE_PORT: '8042'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -225,7 +237,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -242,6 +254,10 @@ services:
       SERVICE_NAME: audit-service
       SERVICE_PORT: '8060'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -281,7 +297,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -298,6 +314,10 @@ services:
       SERVICE_NAME: auth-service
       SERVICE_PORT: '8080'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -337,7 +357,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -354,6 +374,10 @@ services:
       SERVICE_NAME: balance-service
       SERVICE_PORT: '8003'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -393,7 +417,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -410,6 +434,10 @@ services:
       SERVICE_NAME: bharat-qr-service
       SERVICE_PORT: '8016'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -449,7 +477,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -466,6 +494,10 @@ services:
       SERVICE_NAME: branch-service
       SERVICE_PORT: '8007'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -505,7 +537,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -522,6 +554,10 @@ services:
       SERVICE_NAME: case-management
       SERVICE_PORT: '8045'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -635,7 +671,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -652,6 +688,10 @@ services:
       SERVICE_NAME: cbs-adapter
       SERVICE_PORT: '8008'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -691,7 +731,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -708,6 +748,10 @@ services:
       SERVICE_NAME: cersai-adapter
       SERVICE_PORT: '8063'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -747,7 +791,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -764,6 +808,10 @@ services:
       SERVICE_NAME: cheque-service
       SERVICE_PORT: '8006'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -803,7 +851,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -820,6 +868,10 @@ services:
       SERVICE_NAME: ckyc-service
       SERVICE_PORT: '8034'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -859,7 +911,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -876,6 +928,10 @@ services:
       SERVICE_NAME: compliance-checker
       SERVICE_PORT: '8064'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -915,7 +971,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -932,6 +988,10 @@ services:
       SERVICE_NAME: consent-service
       SERVICE_PORT: '8036'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -971,7 +1031,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -988,6 +1048,10 @@ services:
       SERVICE_NAME: credit-card-service
       SERVICE_PORT: '8024'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -1027,7 +1091,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -1044,6 +1108,10 @@ services:
       SERVICE_NAME: demat-service
       SERVICE_PORT: '8026'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -1144,7 +1212,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -1161,6 +1229,10 @@ services:
       SERVICE_NAME: eligibility-engine
       SERVICE_PORT: '8028'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -1200,7 +1272,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -1217,6 +1289,10 @@ services:
       SERVICE_NAME: email-service
       SERVICE_PORT: '8052'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -1256,7 +1332,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -1273,6 +1349,10 @@ services:
       SERVICE_NAME: fd-service
       SERVICE_PORT: '8022'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -1355,7 +1435,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -1372,6 +1452,10 @@ services:
       SERVICE_NAME: fraud-detection
       SERVICE_PORT: '8040'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -1411,7 +1495,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -1428,6 +1512,10 @@ services:
       SERVICE_NAME: fx-service
       SERVICE_PORT: '8017'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -1467,7 +1555,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -1484,6 +1572,10 @@ services:
       SERVICE_NAME: gateway-service
       SERVICE_PORT: '8000'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -1583,7 +1675,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -1600,6 +1692,10 @@ services:
       SERVICE_NAME: ibm-mq-bridge
       SERVICE_PORT: '8072'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -1638,7 +1734,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -1656,6 +1752,10 @@ services:
       SERVICE_PORT: '8035'
       SERVICE_VERSION: 1.0.0
       VAULT_ENCRYPTION_KEY: bankobs-vault-encryption-key-32!
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -1695,7 +1795,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -1712,6 +1812,10 @@ services:
       SERVICE_NAME: imps-service
       SERVICE_PORT: '8014'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -1751,7 +1855,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -1768,6 +1872,10 @@ services:
       SERVICE_NAME: insurance-service
       SERVICE_PORT: '8025'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -1807,7 +1915,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -1824,6 +1932,10 @@ services:
       SERVICE_NAME: interest-engine
       SERVICE_PORT: '8005'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -1971,7 +2083,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -1988,6 +2100,10 @@ services:
       SERVICE_NAME: kyc-service
       SERVICE_PORT: '8030'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -2027,7 +2143,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -2044,6 +2160,10 @@ services:
       SERVICE_NAME: ledger-service
       SERVICE_PORT: '8002'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -2075,6 +2195,11 @@ services:
       HOST_MAC: ${HOST_MAC:-}
       HOST_MACHINE_ID: ${HOST_MACHINE_ID:-}
       LICENSE_KEY: ${LICENSE_KEY:-}
+      OBSERVABILITY_MODE: dark
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - NONE
@@ -2105,7 +2230,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -2122,6 +2247,10 @@ services:
       SERVICE_NAME: loan-origination
       SERVICE_PORT: '8021'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -2161,7 +2290,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -2178,6 +2307,10 @@ services:
       SERVICE_NAME: loan-service
       SERVICE_PORT: '8020'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -2298,7 +2431,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -2315,6 +2448,10 @@ services:
       SERVICE_NAME: nach-service
       SERVICE_PORT: '8015'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -2354,7 +2491,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -2371,6 +2508,10 @@ services:
       SERVICE_NAME: neft-service
       SERVICE_PORT: '8012'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -2410,7 +2551,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -2427,6 +2568,10 @@ services:
       SERVICE_NAME: notification-orchestrator
       SERVICE_PORT: '8050'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -2466,7 +2611,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -2483,6 +2628,10 @@ services:
       SERVICE_NAME: onboarding-service
       SERVICE_PORT: '8031'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -2626,7 +2775,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -2643,6 +2792,10 @@ services:
       SERVICE_NAME: pan-adapter
       SERVICE_PORT: '8033'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -2682,7 +2835,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -2699,6 +2852,10 @@ services:
       SERVICE_NAME: payment-gateway
       SERVICE_PORT: '8010'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -2738,7 +2895,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -2755,6 +2912,10 @@ services:
       SERVICE_NAME: payment-router
       SERVICE_PORT: '8019'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -2794,7 +2955,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -2811,6 +2972,10 @@ services:
       SERVICE_NAME: pci-logger
       SERVICE_PORT: '8062'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -2941,7 +3106,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -2958,6 +3123,10 @@ services:
       SERVICE_NAME: push-service
       SERVICE_PORT: '8053'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -3050,7 +3219,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -3067,6 +3236,10 @@ services:
       SERVICE_NAME: rate-limiter
       SERVICE_PORT: '8082'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -3106,7 +3279,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -3123,6 +3296,10 @@ services:
       SERVICE_NAME: rbi-reporter
       SERVICE_PORT: '8061'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -3162,7 +3339,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -3179,6 +3356,10 @@ services:
       SERVICE_NAME: rd-service
       SERVICE_PORT: '8023'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -3256,7 +3437,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -3273,6 +3454,10 @@ services:
       SERVICE_NAME: remittance-service
       SERVICE_PORT: '8018'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -3312,7 +3497,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -3329,6 +3514,10 @@ services:
       SERVICE_NAME: report-generator
       SERVICE_PORT: '8065'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -3368,7 +3557,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -3385,6 +3574,10 @@ services:
       SERVICE_NAME: risk-scoring
       SERVICE_PORT: '8044'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -3424,7 +3617,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -3441,6 +3634,10 @@ services:
       SERVICE_NAME: rtgs-service
       SERVICE_PORT: '8013'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -3480,7 +3677,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -3497,6 +3694,10 @@ services:
       SERVICE_NAME: rules-engine
       SERVICE_PORT: '8041'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -3536,7 +3737,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -3553,6 +3754,10 @@ services:
       SERVICE_NAME: sanctions-service
       SERVICE_PORT: '8043'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -3592,7 +3797,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -3609,6 +3814,10 @@ services:
       SERVICE_NAME: sms-gateway
       SERVICE_PORT: '8051'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -3648,7 +3857,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -3665,6 +3874,10 @@ services:
       SERVICE_NAME: statement-service
       SERVICE_PORT: '8004'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -3704,7 +3917,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -3721,6 +3934,10 @@ services:
       SERVICE_NAME: tomcat-loan-legacy
       SERVICE_PORT: '8071'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -3759,7 +3976,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -3776,6 +3993,10 @@ services:
       SERVICE_NAME: transaction-monitor
       SERVICE_PORT: '8046'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -3851,7 +4072,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -3868,6 +4089,10 @@ services:
       SERVICE_NAME: upi-service
       SERVICE_PORT: '8011'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -3907,7 +4132,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -3924,6 +4149,10 @@ services:
       SERVICE_NAME: velocity-checker
       SERVICE_PORT: '8047'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -3963,7 +4192,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -3980,6 +4209,10 @@ services:
       SERVICE_NAME: wealth-service
       SERVICE_PORT: '8027'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -4015,6 +4248,11 @@ services:
       COOKIE_SECURE: 'false'
       NODE_ENV: production
       PORT: '8200'
+      OBSERVABILITY_MODE: dark
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -4054,7 +4292,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -4071,6 +4309,10 @@ services:
       SERVICE_NAME: weblogic-cbs-simulator
       SERVICE_PORT: '8070'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL
@@ -4109,7 +4351,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       LOG_LEVEL: INFO
       MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
-      OBSERVABILITY_MODE: full
+      OBSERVABILITY_MODE: dark
       ORACLE_PASSWORD: Training123!
       ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
       ORACLE_USER: BANKOBS_CORE
@@ -4126,6 +4368,10 @@ services:
       SERVICE_NAME: whatsapp-service
       SERVICE_PORT: '8054'
       SERVICE_VERSION: 1.0.0
+      OTEL_SDK_DISABLED: 'true'
+      MANAGEMENT_TRACING_ENABLED: 'false'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'false'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: 'OFF'
     healthcheck:
       test:
       - CMD-SHELL

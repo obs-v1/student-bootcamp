@@ -676,8 +676,8 @@ publish-bootcamp:    ## TRAINER: regenerate student-bootcamp, sync to the git re
 	  (git diff --cached --quiet && echo "nothing to publish" || \
 	   (git commit -m "course update $$(date +%Y-%m-%d)" && git push && echo "✓ published"))
 
-obs-up:              ## Week 1+: start the observability stack (Grafana, Prometheus, Loki, Jaeger, OTel, Fluent Bit, Alertmanager)
-	@$(COMPOSE) $(COMPOSE_FILES) --profile observability up -d
+obs-up:              ## Week 1+: start the observability stack and switch app telemetry ON
+	@$(COMPOSE) $(COMPOSE_FILES) -f docker-compose.observability.yml --profile observability up -d
 	@echo ""
 	@echo "  📊  Grafana   : http://localhost:13000   (admin / admin)"
 
@@ -689,7 +689,8 @@ update:              ## Pull the latest course updates (repo + images) and re-ap
 
 obs-down:            ## Stop only the observability stack (application keeps running)
 	@$(COMPOSE) $(COMPOSE_FILES) --profile observability stop otel-collector jaeger prometheus loki grafana alertmanager fluent-bit 2>/dev/null || true
-	@echo "✓ observability stack stopped; the bank is still running"
+	@$(COMPOSE) $(COMPOSE_FILES) up -d 2>&1 | tail -1
+	@echo "✓ observability stack stopped; application telemetry back to quiet"
 
 ec2-prep:            ## Linux/EC2 host prep: sysctls + prereq checks (run once, needs sudo)
 	@command -v docker >/dev/null || { echo "✗ install docker first (and the compose plugin)"; exit 1; }

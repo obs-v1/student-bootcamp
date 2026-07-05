@@ -1,0 +1,430 @@
+# Applied by `make obs-up`: switches application telemetry ON. Layered
+# over docker-compose.yml together with the observability profile.
+services:
+  aadhaar-adapter:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  account-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  aml-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  audit-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  auth-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  balance-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  bharat-qr-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  branch-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  case-management:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  cbs-adapter:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  cersai-adapter:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  cheque-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  ckyc-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  compliance-checker:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  consent-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  credit-card-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  demat-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  eligibility-engine:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  email-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  fd-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  fraud-detection:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  fx-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  gateway-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  ibm-mq-bridge:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  identity-vault:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  imps-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  insurance-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  interest-engine:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  kyc-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  ledger-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  license-checker:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  loan-origination:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  loan-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  nach-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  neft-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  notification-orchestrator:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  onboarding-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  pan-adapter:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  payment-gateway:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  payment-router:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  pci-logger:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  push-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  rate-limiter:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  rbi-reporter:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  rd-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  remittance-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  report-generator:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  risk-scoring:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  rtgs-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  rules-engine:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  sanctions-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  sms-gateway:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  statement-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  tomcat-loan-legacy:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  transaction-monitor:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  upi-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  velocity-checker:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  wealth-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  web-portal:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  weblogic-cbs-simulator:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
+  whatsapp-service:
+    environment:
+      OBSERVABILITY_MODE: full
+      OTEL_SDK_DISABLED: 'false'
+      MANAGEMENT_TRACING_ENABLED: 'true'
+      MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: 'true'
+      LOGGING_LEVEL_IO_OPENTELEMETRY: INFO
