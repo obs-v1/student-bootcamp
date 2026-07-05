@@ -1,0 +1,48 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    jsonData:
+      timeInterval: 15s
+      httpMethod: POST
+
+  - name: Loki
+    type: loki
+    uid: loki
+    access: proxy
+    url: http://loki:3100
+    jsonData:
+      maxLines: 5000
+      derivedFields:
+        - matcherType: label
+          matcherRegex: trace_id
+          name: TraceID
+          url: '$${__value.raw}'
+          datasourceUid: jaeger
+
+  - name: Jaeger
+    type: jaeger
+    uid: jaeger
+    access: proxy
+    url: http://jaeger:16686
+    jsonData:
+      tracesToLogs:
+        datasourceUid: loki
+        tags: [service]
+
+  - name: Elasticsearch
+    type: elasticsearch
+    uid: elasticsearch
+    access: proxy
+    url: http://elasticsearch:9200
+    database: 'bankobs-audit-*'
+    jsonData:
+      esVersion: '8.11.4'
+      timeField: '@timestamp'
+      logMessageField: message
+      logLevelField: level

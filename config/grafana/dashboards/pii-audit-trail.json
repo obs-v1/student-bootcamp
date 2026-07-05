@@ -1,0 +1,66 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "id": null,
+  "panels": [
+    {
+      "type": "bargauge", "title": "PII vault access events (1h)", "id": 1,
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "sum by(service) (increase(vault_pii_access_full_total[1h]))",
+        "refId": "A", "legendFormat": "{{service}}"
+      }]
+    },
+    {
+      "type": "stat", "title": "Unmasked log events (1h) — SHOULD BE ZERO", "id": 2,
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [{
+        "expr": "sum(count_over_time({pii_masked=\"false\"}[1h]))",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "mode": "absolute", "steps": [
+            { "value": null, "color": "green" },
+            { "value": 1,    "color": "red" }
+          ]}
+        }
+      }
+    },
+    {
+      "type": "gauge", "title": "PII masking compliance score", "id": 3,
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 10 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [{
+        "expr": "1 - (sum(count_over_time({pii_masked=\"false\"}[1h])) / sum(count_over_time({service=~\"banking-.*\"}[1h])))",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit", "min": 0, "max": 1,
+          "thresholds": { "mode": "absolute", "steps": [
+            { "value": null, "color": "red" },
+            { "value": 0.99, "color": "yellow" },
+            { "value": 0.999, "color": "green" }
+          ]}
+        }
+      }
+    },
+    {
+      "type": "logs", "title": "Recent PII access events", "id": 4,
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 10 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [{ "expr": "{event=\"pii_access\"}", "refId": "A" }]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["bankobserve360", "security", "pii"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "PII Audit Trail",
+  "uid": "pii-audit-trail",
+  "version": 1
+}

@@ -1,0 +1,62 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "id": null,
+  "panels": [
+    {
+      "type": "gauge", "title": "DB pool utilization", "id": 1,
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "sum(db_connection_pool_active) / sum(db_connection_pool_max)",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit", "min": 0, "max": 1,
+          "thresholds": { "mode": "absolute", "steps": [
+            { "value": null, "color": "green" },
+            { "value": 0.75, "color": "yellow" },
+            { "value": 0.9,  "color": "red" }
+          ]}
+        }
+      }
+    },
+    {
+      "type": "stat", "title": "Oracle balance cache hit ratio", "id": 2,
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "rate(banking_account_balance_cache_hit_total[5m]) / rate(banking_account_balance_cache_total[5m])",
+        "refId": "A"
+      }],
+      "fieldConfig": { "defaults": { "unit": "percentunit" } }
+    },
+    {
+      "type": "timeseries", "title": "Query duration p99 (by service)", "id": 3,
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "histogram_quantile(0.99, sum by(le, service) (rate(db_query_duration_seconds_bucket[5m])))",
+        "refId": "A", "legendFormat": "{{service}}"
+      }]
+    },
+    {
+      "type": "timeseries", "title": "Active DB connections", "id": 4,
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 10 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "db_connection_pool_active",
+        "refId": "A", "legendFormat": "{{service}} → {{database}}"
+      }]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["bankobserve360", "database"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Database Performance",
+  "uid": "database-performance",
+  "version": 1
+}

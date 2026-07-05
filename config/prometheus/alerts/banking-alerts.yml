@@ -1,0 +1,62 @@
+groups:
+  - name: banking_slo
+    rules:
+      - alert: PaymentServiceErrorRateHigh
+        expr: |
+          sum(rate(http_server_requests_total{service="payment-gateway",status=~"5.."}[5m]))
+            / sum(rate(http_server_requests_total{service="payment-gateway"}[5m])) > 0.01
+        for: 2m
+        labels: { severity: critical, domain: payments }
+        annotations:
+          summary: "Payment gateway error rate >1%"
+          description: "{{ $value | humanizePercentage }} of payment requests are 5xx"
+          runbook: "docs/operations/runbook.md#payment-errors"
+
+      - alert: UPILatencyP99High
+        expr: |
+          histogram_quantile(0.99,
+            sum by(le) (rate(http_server_request_duration_seconds_bucket{service="upi-service"}[5m]))
+          ) > 0.5
+        for: 1m
+        labels: { severity: warning, domain: payments }
+        annotations:
+          summary: "UPI service p99 latency >500ms"
+          description: "Current p99: {{ $value }}s"
+
+      - alert: FraudDetectionSLOBreached
+        expr: |
+          histogram_quantile(0.99,
+            sum by(le) (rate(http_server_request_duration_seconds_bucket{service="fraud-detection"}[5m]))
+          ) > 0.2
+        for: 1m
+        labels: { severity: critical, domain: fraud }
+        annotations:
+          summary: "Fraud detection p99 SLO breached (>200ms)"
+
+      - alert: KafkaConsumerLagCritical
+        expr: kafka_consumer_lag_sum{topic="banking.payments.upi.initiated"} > 10000
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "UPI consumer lag >10k for >5min"
+
+      - alert: KYCServiceDown
+        expr: up{job="banking-services", instance="kyc-service:8030"} == 0
+        for: 30s
+        labels: { severity: critical, domain: kyc }
+        annotations:
+          summary: "KYC service is down"
+
+      - alert: PIIAccessAnomalyDetected
+        expr: increase(vault_pii_access_full_total[1h]) > 100
+        for: 0m
+        labels: { severity: critical, domain: security }
+        annotations:
+          summary: "PII vault full-access calls >100/hr — possible exfiltration"
+
+      - alert: DatabaseConnectionPoolExhausted
+        expr: db_connection_pool_active / db_connection_pool_max > 0.9
+        for: 1m
+        labels: { severity: warning }
+        annotations:
+          summary: "DB connection pool utilization >90%"

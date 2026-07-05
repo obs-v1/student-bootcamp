@@ -1,0 +1,16 @@
+# values-eks.yaml — overrides for `make eks-up` (single-cluster EKS training
+# deployment). Layered on top of values.yaml:
+#   helm upgrade --install bankobs . -f values.yaml -f values-eks.yaml \
+#     --set global.registry=<ecr-registry>/bankobserve360
+global:
+  # registry is set on the command line from the terraform output:
+  #   --set global.registry=<acct>.dkr.ecr.<region>.amazonaws.com/bankobserve360
+  imageTag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+  observability:
+    mode: full
+
+  # EKS: EBS-CSI-backed storage for the stateful set (Oracle, Cassandra,
+  # Kafka, Elasticsearch, Postgres, Mongo, Redis).
+  storageClass: gp2

@@ -1,0 +1,405 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "includeVars": false,
+      "keepTime": true,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Open Jaeger",
+      "tooltip": "Search traces in Jaeger UI",
+      "type": "link",
+      "url": "http://localhost:16686/search?service=upi-service"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": ["bankobs", "upi", "payments", "transactions"],
+  "templating": {
+    "list": [
+      {
+        "current": {"text": "All", "value": ".+"},
+        "name": "amount_range",
+        "label": "Amount range",
+        "options": [
+          {"text": "All",    "value": ".+",     "selected": true},
+          {"text": "< ₹1k",  "value": "lt-1k"},
+          {"text": "₹1k-10k","value": "1k-10k"},
+          {"text": "₹10k-1L","value": "10k-1L"},
+          {"text": "> ₹1L",  "value": "gt-1L"}
+        ],
+        "query": "All : .+, < ₹1k : lt-1k, ₹1k-10k : 1k-10k, ₹10k-1L : 10k-1L, > ₹1L : gt-1L",
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {"from": "now-1h", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "UPI Transactions",
+  "uid": "upi-transactions",
+  "version": 1,
+  "weekStart": "",
+  "panels": [
+    {
+      "id": 1,
+      "title": "UPI payments — total in range",
+      "type": "stat",
+      "gridPos": {"x": 0, "y": 0, "w": 6, "h": 4},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({service=\"upi-service\"} |= \"upi-payment-completed\" [$__range]))",
+          "refId": "A",
+          "queryType": "instant"
+        }
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "blue"}]},
+          "unit": "short"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "UPI total volume (₹)",
+      "type": "stat",
+      "gridPos": {"x": 6, "y": 0, "w": 6, "h": 4},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {
+          "expr": "sum(upi_daily_volume_inr)",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}]},
+          "unit": "currencyINR"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "P99 latency",
+      "type": "stat",
+      "gridPos": {"x": 12, "y": 0, "w": 6, "h": 4},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, sum by(le) (rate(upi_payment_duration_seconds_bucket[5m])))",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "orientation": "auto",
+        "textMode": "value",
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "green", "value": null},
+            {"color": "yellow", "value": 0.3},
+            {"color": "red", "value": 0.5}
+          ]},
+          "unit": "s"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Success rate",
+      "type": "gauge",
+      "gridPos": {"x": 18, "y": 0, "w": 6, "h": 4},
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {
+          "expr": "sum(rate(upi_transactions_total{status=\"COMPLETED\"}[5m])) / clamp_min(sum(rate(upi_transactions_total[5m])), 0.001)",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "orientation": "auto",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "red", "value": null},
+            {"color": "yellow", "value": 0.95},
+            {"color": "green", "value": 0.99}
+          ]},
+          "unit": "percentunit",
+          "min": 0, "max": 1
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Payment count over time",
+      "type": "timeseries",
+      "gridPos": {"x": 0, "y": 4, "w": 12, "h": 8},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "targets": [
+        {
+          "expr": "sum by (amount_range) (count_over_time({service=\"upi-service\"} |= \"upi-payment-completed\" | json | amount_range=~\"$amount_range\" [1m]))",
+          "legendFormat": "{{amount_range}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "drawStyle": "bars",
+            "lineInterpolation": "linear",
+            "barAlignment": 0,
+            "lineWidth": 1,
+            "fillOpacity": 70,
+            "gradientMode": "opacity",
+            "spanNulls": false,
+            "stacking": {"mode": "normal", "group": "A"},
+            "axisLabel": "payments",
+            "showPoints": "never"
+          },
+          "unit": "short"
+        }
+      },
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      }
+    },
+    {
+      "id": 6,
+      "title": "Money flow (₹) by amount range",
+      "type": "timeseries",
+      "gridPos": {"x": 12, "y": 4, "w": 12, "h": 8},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "targets": [
+        {
+          "expr": "sum by (amount_range) (sum_over_time({service=\"upi-service\"} |= \"upi-payment-completed\" | json | amount_range=~\"$amount_range\" | unwrap amount [1m]))",
+          "legendFormat": "₹ {{amount_range}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 20,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {"mode": "none", "group": "A"}
+          },
+          "unit": "currencyINR"
+        }
+      },
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      }
+    },
+    {
+      "id": 7,
+      "title": "Recent transactions — click trace_id to open Jaeger",
+      "type": "table",
+      "description": "Each row is one UPI payment with the debited and credited accounts, the amount, the fraud score, and the trace ID. Click trace_id to jump to Jaeger.",
+      "gridPos": {"x": 0, "y": 12, "w": 24, "h": 14},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "targets": [
+        {
+          "expr": "{service=\"upi-service\"} |~ \"upi-payment-(completed|failed)\" | json | amount_range=~\"$amount_range\" | line_format \"\"",
+          "refId": "A",
+          "queryType": "range",
+          "maxLines": 200
+        }
+      ],
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {"source": "labels"}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Line":           true,
+              "tsNs":           true,
+              "labelTypes":     true,
+              "id":             true,
+              "service":        true,
+              "environment":    true,
+              "version":        true,
+              "event":          true,
+              "level":          true,
+              "pii_masked":     true,
+              "correlation_id": true,
+              "span_id":        true,
+              "currency":       true,
+              "amount_range":   true
+            },
+            "indexByName": {
+              "Time":           0,
+              "status":         1,
+              "payment_id":     2,
+              "debit_account":  3,
+              "from_vpa":       4,
+              "credit_account": 5,
+              "to_vpa":         6,
+              "amount":         7,
+              "fraud_score":    8,
+              "fail_reason":    9,
+              "trace_id":       10
+            },
+            "renameByName": {
+              "Time":           "When",
+              "status":         "Status",
+              "payment_id":     "Payment ID",
+              "debit_account":  "From account",
+              "from_vpa":       "From VPA",
+              "credit_account": "To account",
+              "to_vpa":         "To VPA",
+              "amount":         "Amount",
+              "fraud_score":    "Fraud",
+              "fail_reason":    "Reason",
+              "trace_id":       "Trace"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto",
+            "inspect": false,
+            "cellOptions": {"type": "auto"}
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "Status"},
+            "properties": [
+              {"id": "custom.cellOptions", "value": {
+                "type": "color-background",
+                "mode": "basic"
+              }},
+              {"id": "custom.displayMode", "value": "color-background"},
+              {"id": "mappings", "value": [
+                {"type": "value", "options": {
+                  "COMPLETED": {"color": "green",  "index": 0, "text": "COMPLETED"},
+                  "FAILED":    {"color": "red",    "index": 1, "text": "FAILED"},
+                  "BLOCKED":   {"color": "red",    "index": 2, "text": "BLOCKED"}
+                }}
+              ]},
+              {"id": "custom.width", "value": 110}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Amount"},
+            "properties": [
+              {"id": "unit", "value": "currencyINR"},
+              {"id": "custom.cellOptions", "value": {
+                "type": "color-background",
+                "mode": "gradient"
+              }},
+              {"id": "color", "value": {"mode": "continuous-BlPu"}}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Fraud"},
+            "properties": [
+              {"id": "custom.cellOptions", "value": {
+                "type": "color-background",
+                "mode": "basic"
+              }},
+              {"id": "color", "value": {"mode": "thresholds"}},
+              {"id": "thresholds", "value": {
+                "mode": "absolute",
+                "steps": [
+                  {"color": "green",  "value": null},
+                  {"color": "yellow", "value": 31},
+                  {"color": "orange", "value": 61},
+                  {"color": "red",    "value": 81}
+                ]
+              }}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Reason"},
+            "properties": [
+              {"id": "custom.width", "value": 240},
+              {"id": "color", "value": {"fixedColor": "red", "mode": "fixed"}}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Trace"},
+            "properties": [
+              {"id": "custom.cellOptions", "value": {"type": "auto"}},
+              {"id": "links", "value": [
+                {
+                  "title": "Open trace in Jaeger",
+                  "url": "http://localhost:16686/trace/${__value.raw}",
+                  "targetBlank": true
+                }
+              ]},
+              {"id": "custom.width", "value": 280}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Payment ID"},
+            "properties": [{"id": "custom.width", "value": 290}]
+          },
+          {
+            "matcher": {"id": "byName", "options": "When"},
+            "properties": [{"id": "custom.width", "value": 175}]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "footer": {"show": false, "reducer": ["sum"], "fields": ""}
+      }
+    }
+  ]
+}

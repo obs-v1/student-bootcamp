@@ -1,0 +1,11 @@
+# Account 2 / Cluster 1 (bankobs-core) — banking application services.
+core-banking:        { enabled: true }
+payments:            { enabled: true }
+retail-banking:      { enabled: true }
+customer-identity:   { enabled: true }
+fraud-risk:          { enabled: true }
+notifications:       { enabled: true }
+audit-compliance:    { enabled: false }
+legacy-stack:        { enabled: false }
+observability-stack: { enabled: false }
+loadrunner:          { enabled: false }

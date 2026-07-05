@@ -1,0 +1,56 @@
+{
+  "rabbit_version": "3.12.0",
+  "users": [
+    { "name": "guest", "password_hash": "guest", "hashing_algorithm": "rabbit_password_hashing_sha256", "tags": "administrator" }
+  ],
+  "vhosts": [ { "name": "/" } ],
+  "permissions": [
+    { "user": "guest", "vhost": "/", "configure": ".*", "write": ".*", "read": ".*" }
+  ],
+  "policies": [
+    {
+      "vhost": "/",
+      "name": "ha-all",
+      "pattern": "^bankobs\\.",
+      "apply-to": "queues",
+      "definition": { "ha-mode": "all", "ha-sync-mode": "automatic" },
+      "priority": 0
+    },
+    {
+      "vhost": "/",
+      "name": "notifications-dlx",
+      "pattern": "^bankobs\\.notifications\\.",
+      "apply-to": "queues",
+      "definition": { "dead-letter-exchange": "bankobs.dlx", "dead-letter-routing-key": "dlq" },
+      "priority": 1
+    }
+  ],
+  "exchanges": [
+    { "name": "bankobs.notifications", "vhost": "/", "type": "topic",  "durable": true, "auto_delete": false, "internal": false },
+    { "name": "bankobs.audit",         "vhost": "/", "type": "topic",  "durable": true, "auto_delete": false, "internal": false },
+    { "name": "bankobs.fraud",         "vhost": "/", "type": "direct", "durable": true, "auto_delete": false, "internal": false },
+    { "name": "bankobs.dlx",           "vhost": "/", "type": "fanout", "durable": true, "auto_delete": false, "internal": false }
+  ],
+  "queues": [
+    { "name": "bankobs.notifications.sms.critical",      "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-max-priority": 10 } },
+    { "name": "bankobs.notifications.sms.transactional", "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-max-priority": 10 } },
+    { "name": "bankobs.notifications.email",             "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-max-priority": 10 } },
+    { "name": "bankobs.notifications.push",              "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-max-priority": 10 } },
+    { "name": "bankobs.notifications.whatsapp",          "vhost": "/", "durable": true, "auto_delete": false, "arguments": { "x-max-priority": 10 } },
+    { "name": "bankobs.notifications.marketing",         "vhost": "/", "durable": true, "auto_delete": false },
+    { "name": "bankobs.audit.events",                    "vhost": "/", "durable": true, "auto_delete": false },
+    { "name": "bankobs.fraud.alerts",                    "vhost": "/", "durable": true, "auto_delete": false },
+    { "name": "bankobs.dlq",                             "vhost": "/", "durable": true, "auto_delete": false }
+  ],
+  "bindings": [
+    { "source": "bankobs.notifications", "vhost": "/", "destination": "bankobs.notifications.sms.critical",      "destination_type": "queue", "routing_key": "sms.critical.#",       "arguments": {} },
+    { "source": "bankobs.notifications", "vhost": "/", "destination": "bankobs.notifications.sms.transactional", "destination_type": "queue", "routing_key": "sms.transactional.#",  "arguments": {} },
+    { "source": "bankobs.notifications", "vhost": "/", "destination": "bankobs.notifications.email",             "destination_type": "queue", "routing_key": "email.#",              "arguments": {} },
+    { "source": "bankobs.notifications", "vhost": "/", "destination": "bankobs.notifications.push",              "destination_type": "queue", "routing_key": "push.#",               "arguments": {} },
+    { "source": "bankobs.notifications", "vhost": "/", "destination": "bankobs.notifications.whatsapp",          "destination_type": "queue", "routing_key": "whatsapp.#",           "arguments": {} },
+    { "source": "bankobs.notifications", "vhost": "/", "destination": "bankobs.notifications.marketing",         "destination_type": "queue", "routing_key": "marketing.#",          "arguments": {} },
+    { "source": "bankobs.audit",         "vhost": "/", "destination": "bankobs.audit.events",                    "destination_type": "queue", "routing_key": "#",                    "arguments": {} },
+    { "source": "bankobs.fraud",         "vhost": "/", "destination": "bankobs.fraud.alerts",                    "destination_type": "queue", "routing_key": "alert",                "arguments": {} },
+    { "source": "bankobs.dlx",           "vhost": "/", "destination": "bankobs.dlq",                             "destination_type": "queue", "routing_key": "dlq",                  "arguments": {} }
+  ]
+}

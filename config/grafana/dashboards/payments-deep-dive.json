@@ -1,0 +1,43 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "id": null,
+  "panels": [
+    {
+      "type": "stat", "title": "UPI TPS", "id": 1,
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum(rate(upi_transaction_success_rate[1m]))", "refId": "A" }]
+    },
+    {
+      "type": "timeseries", "title": "UPI p50 / p95 / p99 latency", "id": 2,
+      "gridPos": { "h": 10, "w": 12, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum by(le) (rate(http_server_request_duration_seconds_bucket{service=\"upi-service\"}[5m])))", "refId": "A", "legendFormat": "p50" },
+        { "expr": "histogram_quantile(0.95, sum by(le) (rate(http_server_request_duration_seconds_bucket{service=\"upi-service\"}[5m])))", "refId": "B", "legendFormat": "p95" },
+        { "expr": "histogram_quantile(0.99, sum by(le) (rate(http_server_request_duration_seconds_bucket{service=\"upi-service\"}[5m])))", "refId": "C", "legendFormat": "p99" }
+      ]
+    },
+    {
+      "type": "timeseries", "title": "NEFT batch processing rate", "id": 3,
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 10 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "rate(neft_batch_processed_total[5m])", "refId": "A" }]
+    },
+    {
+      "type": "timeseries", "title": "RTGS settlement latency", "id": 4,
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 10 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "histogram_quantile(0.99, sum by(le) (rate(rtgs_settlement_duration_seconds_bucket[5m])))", "refId": "A" }]
+    }
+  ],
+  "refresh": "15s",
+  "schemaVersion": 38,
+  "tags": ["bankobserve360", "payments"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Payments Deep Dive",
+  "uid": "payments-deep-dive",
+  "version": 1
+}

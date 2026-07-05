@@ -1,0 +1,67 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "id": null,
+  "panels": [
+    {
+      "type": "stat", "title": "Fraud scoring p99 (SLO: <200ms)", "id": 1,
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "histogram_quantile(0.99, sum by(le) (rate(fraud_scoring_duration_seconds_bucket[5m])))",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s", "decimals": 3,
+          "thresholds": { "mode": "absolute", "steps": [
+            { "value": null, "color": "green" },
+            { "value": 0.15, "color": "yellow" },
+            { "value": 0.2,  "color": "red" }
+          ]}
+        }
+      }
+    },
+    {
+      "type": "stat", "title": "Fraud alerts (last 1h)", "id": 2,
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "increase(fraud_alerts_total[1h])", "refId": "A" }]
+    },
+    {
+      "type": "stat", "title": "Blocked transactions (last 1h)", "id": 3,
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "increase(fraud_blocked_total[1h])", "refId": "A" }]
+    },
+    {
+      "type": "timeseries", "title": "Fraud score distribution", "id": 4,
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "sum by(score_bucket) (rate(fraud_score_bucket_total[1m]))",
+        "refId": "A", "legendFormat": "{{score_bucket}}"
+      }]
+    },
+    {
+      "type": "timeseries", "title": "Velocity violations", "id": 5,
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "rate(velocity_violation_total[5m])", "refId": "A" }]
+    },
+    {
+      "type": "timeseries", "title": "AML cases by severity", "id": 6,
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum by(severity) (aml_open_cases)", "refId": "A", "legendFormat": "{{severity}}" }]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "tags": ["bankobserve360", "fraud"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Fraud Real-time",
+  "uid": "fraud-realtime",
+  "version": 1
+}

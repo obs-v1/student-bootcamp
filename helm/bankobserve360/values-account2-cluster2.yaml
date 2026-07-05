@@ -1,0 +1,11 @@
+# Account 2 / Cluster 2 (bankobs-data) — databases, queues, load runner.
+core-banking:        { enabled: false }
+payments:            { enabled: false }
+retail-banking:      { enabled: false }
+customer-identity:   { enabled: false }
+fraud-risk:          { enabled: false }
+notifications:       { enabled: false }
+audit-compliance:    { enabled: false }
+legacy-stack:        { enabled: false }
+observability-stack: { enabled: false }
+loadrunner:          { enabled: true }

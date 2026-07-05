@@ -1,0 +1,57 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "id": null,
+  "panels": [
+    {
+      "type": "stat", "title": "Total consumer lag", "id": 1,
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum(kafka_consumer_lag_sum)", "refId": "A" }]
+    },
+    {
+      "type": "stat", "title": "UPI initiated lag", "id": 2,
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "kafka_consumer_lag_sum{topic=\"banking.payments.upi.initiated\"}",
+        "refId": "A"
+      }]
+    },
+    {
+      "type": "stat", "title": "Fraud alerts lag", "id": 3,
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "kafka_consumer_lag_sum{topic=\"banking.fraud.alerts\"}",
+        "refId": "A"
+      }]
+    },
+    {
+      "type": "timeseries", "title": "Consumer lag by topic", "id": 4,
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "sum by(topic) (kafka_consumer_lag_sum)",
+        "refId": "A", "legendFormat": "{{topic}}"
+      }]
+    },
+    {
+      "type": "timeseries", "title": "Message rate by topic", "id": 5,
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "sum by(topic) (rate(kafka_topic_partition_current_offset[1m]))",
+        "refId": "A", "legendFormat": "{{topic}}"
+      }]
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 38,
+  "tags": ["bankobserve360", "kafka"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Kafka Consumer Lag",
+  "uid": "kafka-consumer-lag",
+  "version": 1
+}

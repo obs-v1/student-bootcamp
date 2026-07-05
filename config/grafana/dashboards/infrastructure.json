@@ -1,0 +1,39 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "id": null,
+  "panels": [
+    {
+      "type": "timeseries", "title": "Container CPU usage", "id": 1,
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "sum by(name) (rate(container_cpu_usage_seconds_total{name=~\"bankobs-.*\"}[5m]))",
+        "refId": "A", "legendFormat": "{{name}}"
+      }]
+    },
+    {
+      "type": "timeseries", "title": "Container memory usage", "id": 2,
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "container_memory_working_set_bytes{name=~\"bankobs-.*\"}",
+        "refId": "A", "legendFormat": "{{name}}"
+      }]
+    },
+    {
+      "type": "table", "title": "Service uptime", "id": 3,
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 10 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "up", "refId": "A", "format": "table", "instant": true }]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["bankobserve360", "infrastructure"],
+  "templating": { "list": [] },
+  "time": { "from": "now-3h", "to": "now" },
+  "title": "Infrastructure",
+  "uid": "infrastructure",
+  "version": 1
+}

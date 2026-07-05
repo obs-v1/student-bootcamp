@@ -1,0 +1,81 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "id": null,
+  "panels": [
+    {
+      "type": "stat", "title": "Active VUs", "id": 1,
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "loadrunner_virtual_users_active", "refId": "A" }]
+    },
+    {
+      "type": "stat", "title": "Requests/sec", "id": 2,
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum(rate(loadrunner_requests_total[30s]))", "refId": "A" }],
+      "fieldConfig": { "defaults": { "unit": "reqps" } }
+    },
+    {
+      "type": "gauge", "title": "Error rate", "id": 3,
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "sum(rate(loadrunner_errors_total[1m])) / sum(rate(loadrunner_requests_total[1m]))",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit", "min": 0, "max": 0.1,
+          "thresholds": { "mode": "absolute", "steps": [
+            { "value": null, "color": "green" },
+            { "value": 0.01, "color": "yellow" },
+            { "value": 0.05, "color": "red" }
+          ]}
+        }
+      }
+    },
+    {
+      "type": "stat", "title": "SLO violations (last run)", "id": 4,
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum(loadrunner_slo_violation_total)", "refId": "A" }]
+    },
+    {
+      "type": "timeseries", "title": "Latency percentiles per journey", "id": 5,
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum by(le,journey) (rate(loadrunner_request_duration_seconds_bucket[1m])))", "refId": "A", "legendFormat": "p50 — {{journey}}" },
+        { "expr": "histogram_quantile(0.95, sum by(le,journey) (rate(loadrunner_request_duration_seconds_bucket[1m])))", "refId": "B", "legendFormat": "p95 — {{journey}}" },
+        { "expr": "histogram_quantile(0.99, sum by(le,journey) (rate(loadrunner_request_duration_seconds_bucket[1m])))", "refId": "C", "legendFormat": "p99 — {{journey}}" }
+      ]
+    },
+    {
+      "type": "table", "title": "SLO violations breakdown", "id": 6,
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "sum by(journey, slo_name) (loadrunner_slo_violation_total)",
+        "refId": "A", "format": "table", "instant": true
+      }]
+    },
+    {
+      "type": "bargauge", "title": "Top 10 slowest services (p99)", "id": 7,
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "topk(10, histogram_quantile(0.99, sum by(le, service) (rate(http_server_request_duration_seconds_bucket[5m]))))",
+        "refId": "A", "legendFormat": "{{service}}"
+      }]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "tags": ["bankobserve360", "loadrunner"],
+  "templating": { "list": [] },
+  "time": { "from": "now-30m", "to": "now" },
+  "title": "Load Runner Results",
+  "uid": "loadrunner-results",
+  "version": 1
+}

@@ -1,0 +1,53 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "id": null,
+  "panels": [
+    {
+      "type": "stat", "title": "KYC initiated (1h)", "id": 1,
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "increase(kyc_initiated_total[1h])", "refId": "A" }]
+    },
+    {
+      "type": "stat", "title": "KYC verified (1h)", "id": 2,
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "increase(kyc_verified_total[1h])", "refId": "A" }]
+    },
+    {
+      "type": "stat", "title": "KYC rejected (1h)", "id": 3,
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "increase(kyc_rejected_total[1h])", "refId": "A" }]
+    },
+    {
+      "type": "gauge", "title": "Aadhaar adapter availability", "id": 4,
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "avg_over_time(up{job=\"banking-services\",instance=\"aadhaar-adapter:8032\"}[5m])",
+        "refId": "A"
+      }],
+      "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1 } }
+    },
+    {
+      "type": "timeseries", "title": "KYC funnel — initiated → verified → level promoted", "id": 5,
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "rate(kyc_initiated_total[5m])", "refId": "A", "legendFormat": "initiated" },
+        { "expr": "rate(kyc_verified_total[5m])",  "refId": "B", "legendFormat": "verified" },
+        { "expr": "rate(kyc_level_promoted_total[5m])", "refId": "C", "legendFormat": "promoted" }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["bankobserve360", "kyc"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "KYC Funnel",
+  "uid": "kyc-funnel",
+  "version": 1
+}

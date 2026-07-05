@@ -1,0 +1,32 @@
+groups:
+  - name: infrastructure
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels: { severity: warning }
+        annotations:
+          summary: "Service {{ $labels.instance }} is down"
+
+      - alert: OtelCollectorBackpressure
+        expr: rate(otelcol_processor_dropped_log_records[1m]) > 100
+        for: 2m
+        labels: { severity: warning, domain: observability }
+        annotations:
+          summary: "OTel Collector dropping log records"
+
+      - alert: HighMemoryUsage
+        expr: |
+          (container_memory_working_set_bytes{name=~"bankobs-.*"} /
+           container_spec_memory_limit_bytes{name=~"bankobs-.*"}) > 0.85
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Container {{ $labels.name }} memory >85% of limit"
+
+      - alert: ElasticsearchClusterRed
+        expr: elasticsearch_cluster_health_status{color="red"} == 1
+        for: 30s
+        labels: { severity: critical }
+        annotations:
+          summary: "Elasticsearch cluster RED"

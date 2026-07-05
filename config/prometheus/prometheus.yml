@@ -1,0 +1,27 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: bankobserve360-local
+    environment: training
+
+rule_files:
+  - /etc/prometheus/alerts/*.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: [alertmanager:9093]
+
+# Most metrics arrive via the OTel Collector's prometheusremotewrite exporter.
+# Add a few self-scrapes here so Prometheus has health data without OTel.
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: [localhost:9090]
+  - job_name: otel-collector
+    static_configs:
+      - targets: [otel-collector:8888]
+  - job_name: loadrunner
+    static_configs:
+      - targets: [loadrunner:9090]

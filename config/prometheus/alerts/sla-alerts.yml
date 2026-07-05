@@ -1,0 +1,21 @@
+groups:
+  - name: sla_targets
+    rules:
+      - alert: PaymentSuccessRateBelowSLO
+        expr: |
+          (sum(rate(http_server_requests_total{service="payment-gateway",status=~"2.."}[15m]))
+            / sum(rate(http_server_requests_total{service="payment-gateway"}[15m]))) < 0.999
+        for: 5m
+        labels: { severity: critical, sla: payment_success }
+        annotations:
+          summary: "Payment success rate below 99.9% SLO"
+
+      - alert: FraudDetectionLatencyBudgetBurn
+        expr: |
+          (1 - histogram_quantile(0.99,
+            sum by(le) (rate(http_server_request_duration_seconds_bucket{service="fraud-detection"}[5m]))
+          ) < 0.2) and on() (rate(http_server_requests_total{service="fraud-detection"}[5m]) > 0)
+        for: 10m
+        labels: { severity: warning, sla: fraud_latency }
+        annotations:
+          summary: "Fraud detection burning latency budget"

@@ -1,0 +1,145 @@
+# OpenTelemetry Collector — central (Account 1) configuration.
+# Receives OTLP from all 75 services + scrapes Prometheus + Kafka metrics.
+# Fan-out: traces → Jaeger, metrics → Prometheus remote-write, logs → Loki.
+
+receivers:
+  otlp:
+    protocols:
+      grpc: { endpoint: 0.0.0.0:4317 }
+      http: { endpoint: 0.0.0.0:4318 }
+
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: banking-services
+          scrape_interval: 15s
+          static_configs:
+            - targets:
+                # ── Core Banking ────────────────────────────────────────────
+                - account-service:8001
+                - ledger-service:8002
+                - balance-service:8003
+                - statement-service:8004
+                - interest-engine:8005
+                - cheque-service:8006
+                - branch-service:8007
+                - cbs-adapter:8008
+                # ── Payments ────────────────────────────────────────────────
+                - payment-gateway:8010
+                - upi-service:8011
+                - neft-service:8012
+                - rtgs-service:8013
+                - imps-service:8014
+                - nach-service:8015
+                - bharat-qr-service:8016
+                - fx-service:8017
+                - remittance-service:8018
+                - payment-router:8019
+                # ── Retail ──────────────────────────────────────────────────
+                - loan-service:8020
+                - loan-origination:8021
+                - fd-service:8022
+                - rd-service:8023
+                - credit-card-service:8024
+                - insurance-service:8025
+                - demat-service:8026
+                - wealth-service:8027
+                - eligibility-engine:8028
+                # ── Identity ────────────────────────────────────────────────
+                - kyc-service:8030
+                - onboarding-service:8031
+                - aadhaar-adapter:8032
+                - pan-adapter:8033
+                - ckyc-service:8034
+                - identity-vault:8035
+                - consent-service:8036
+                # ── Fraud & Risk ────────────────────────────────────────────
+                - fraud-detection:8040
+                - rules-engine:8041
+                - aml-service:8042
+                - sanctions-service:8043
+                - risk-scoring:8044
+                - case-management:8045
+                - transaction-monitor:8046
+                - velocity-checker:8047
+                # ── Notifications ───────────────────────────────────────────
+                - notification-orchestrator:8050
+                - sms-gateway:8051
+                - email-service:8052
+                - push-service:8053
+                - whatsapp-service:8054
+                # ── Audit & Compliance ──────────────────────────────────────
+                - audit-service:8060
+                - rbi-reporter:8061
+                - pci-logger:8062
+                - cersai-adapter:8063
+                - compliance-checker:8064
+                - report-generator:8065
+                # ── Gateway / Auth ──────────────────────────────────────────
+                - gateway-service:8000
+                - auth-service:8080
+                - rate-limiter:8082
+                # ── Legacy ──────────────────────────────────────────────────
+                - weblogic-cbs-simulator:8070
+                - tomcat-loan-legacy:8071
+                - ibm-mq-bridge:8072
+                # ── Load Runner ─────────────────────────────────────────────
+                - loadrunner:9090
+
+  kafkametrics:
+    brokers: [kafka:9092]
+    protocol_version: 3.6.0
+    scrapers: [brokers, topics, consumers]
+    collection_interval: 30s
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+    send_batch_max_size: 2048
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+    spike_limit_mib: 128
+  resourcedetection:
+    detectors: [docker, system]
+    timeout: 5s
+    override: false
+
+exporters:
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls: { insecure: true }
+  prometheusremotewrite:
+    endpoint: http://prometheus:9090/api/v1/write
+    resource_to_telemetry_conversion: { enabled: true }
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+  debug:
+    verbosity: basic
+
+extensions:
+  health_check: { endpoint: 0.0.0.0:13133 }
+  pprof:        { endpoint: 0.0.0.0:1777 }
+  zpages:       { endpoint: 0.0.0.0:55679 }
+
+service:
+  extensions: [health_check, pprof, zpages]
+  telemetry:
+    logs:
+      level: info
+    metrics:
+      address: 0.0.0.0:8888
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, resourcedetection, batch]
+      exporters: [otlp/jaeger]
+    metrics:
+      receivers: [otlp, prometheus, kafkametrics]
+      processors: [memory_limiter, batch]
+      exporters: [prometheusremotewrite]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [loki]

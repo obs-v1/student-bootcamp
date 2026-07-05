@@ -1,0 +1,116 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "TPS — total banking requests/sec",
+      "id": 1,
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "sum(rate(http_server_requests_total[1m]))", "refId": "A" }],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value" },
+      "fieldConfig": { "defaults": { "unit": "reqps", "decimals": 1 } }
+    },
+    {
+      "type": "gauge",
+      "title": "Payment success rate (5m)",
+      "id": 2,
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "1 - (sum(rate(http_server_requests_total{service=\"payment-gateway\",status=~\"5..\"}[5m])) / sum(rate(http_server_requests_total{service=\"payment-gateway\"}[5m])))",
+        "refId": "A"
+      }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0.95,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "red" },
+              { "value": 0.99, "color": "yellow" },
+              { "value": 0.999, "color": "green" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "P99 latency — banking services",
+      "id": 3,
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "histogram_quantile(0.99, sum by(le) (rate(http_server_request_duration_seconds_bucket[5m])))",
+        "refId": "A"
+      }],
+      "fieldConfig": { "defaults": { "unit": "s", "decimals": 3 } }
+    },
+    {
+      "type": "stat",
+      "title": "Active alerts",
+      "id": 4,
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "count(ALERTS{alertstate=\"firing\"})", "refId": "A" }]
+    },
+    {
+      "type": "table",
+      "title": "Service health matrix",
+      "id": 5,
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "up{job=\"banking-services\"}", "refId": "A", "format": "table", "instant": true }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Transaction volume by payment rail",
+      "id": 6,
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "sum by(payment_type) (rate(banking_payment_total[5m]))",
+        "refId": "A", "legendFormat": "{{payment_type}}"
+      }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Error rate by service",
+      "id": 7,
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "sum by(service) (rate(http_server_requests_total{status=~\"5..\"}[5m])) / sum by(service) (rate(http_server_requests_total[5m]))",
+        "refId": "A", "legendFormat": "{{service}}"
+      }]
+    },
+    {
+      "type": "timeseries",
+      "title": "Kafka consumer lag",
+      "id": 8,
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "kafka_consumer_lag_sum",
+        "refId": "A", "legendFormat": "{{topic}} / {{group}}"
+      }]
+    }
+  ],
+  "refresh": "15s",
+  "schemaVersion": 38,
+  "tags": ["bankobserve360", "overview"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Banking Overview",
+  "uid": "banking-overview",
+  "version": 1
+}

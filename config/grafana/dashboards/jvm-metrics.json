@@ -1,0 +1,45 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "id": null,
+  "panels": [
+    {
+      "type": "timeseries", "title": "JVM heap used", "id": 1,
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "jvm_memory_used_bytes{area=\"heap\"}",
+        "refId": "A", "legendFormat": "{{service}} / {{id}}"
+      }]
+    },
+    {
+      "type": "timeseries", "title": "GC pause time", "id": 2,
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{
+        "expr": "rate(jvm_gc_pause_seconds_sum[5m])",
+        "refId": "A", "legendFormat": "{{service}} / {{action}}"
+      }]
+    },
+    {
+      "type": "timeseries", "title": "Thread count", "id": 3,
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 10 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "jvm_threads_live_threads", "refId": "A", "legendFormat": "{{service}}" }]
+    },
+    {
+      "type": "timeseries", "title": "Class loaded", "id": 4,
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 10 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "jvm_classes_loaded_classes", "refId": "A", "legendFormat": "{{service}}" }]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["bankobserve360", "jvm"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "JVM Metrics",
+  "uid": "jvm-metrics",
+  "version": 1
+}

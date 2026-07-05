@@ -1,0 +1,72 @@
+# UPI availability SLO — installed into bankobserve360's Prometheus
+# (config/prometheus/alerts/ is glob-loaded by the app's prometheus.yml).
+#
+# SLO: 99.9% of upi-service requests are non-5xx, rolling 30 days.
+# Metric source: the OTel-semconv counter the Go SDK emits, scraped via
+# the central collector: http_server_request_duration_seconds_count.
+# NOTE the status label carries CLASSES ("5xx"), not codes — see lab w1-05.
+#
+# Window strategy: lab-scaled fast-burn (10m/2m) fires during the exercise;
+# production windows (1h/5m + 6h/30m) are included for the real world.
+
+groups:
+  - name: upi.slo.recording
+    interval: 15s
+    rules:
+      - record: sli:upi_availability:error_ratio_rate2m
+        expr: |
+          (sum(rate(http_server_request_duration_seconds_count{service="upi-service", status="5xx"}[2m])) or vector(0))
+            /
+          sum(rate(http_server_request_duration_seconds_count{service="upi-service"}[2m]))
+      - record: sli:upi_availability:error_ratio_rate10m
+        expr: |
+          (sum(rate(http_server_request_duration_seconds_count{service="upi-service", status="5xx"}[10m])) or vector(0))
+            /
+          sum(rate(http_server_request_duration_seconds_count{service="upi-service"}[10m]))
+      - record: sli:upi_availability:error_ratio_rate5m
+        expr: |
+          (sum(rate(http_server_request_duration_seconds_count{service="upi-service", status="5xx"}[5m])) or vector(0))
+            /
+          sum(rate(http_server_request_duration_seconds_count{service="upi-service"}[5m]))
+      - record: sli:upi_availability:error_ratio_rate1h
+        expr: |
+          (sum(rate(http_server_request_duration_seconds_count{service="upi-service", status="5xx"}[1h])) or vector(0))
+            /
+          sum(rate(http_server_request_duration_seconds_count{service="upi-service"}[1h]))
+      - record: slo:upi_availability:burn_rate10m
+        expr: sli:upi_availability:error_ratio_rate10m / 0.001
+
+  - name: upi.slo.alerts
+    interval: 15s
+    rules:
+      # Lab-scaled: fires within minutes of a real dependency outage.
+      - alert: UpiSLOFastBurn
+        expr: |
+          sli:upi_availability:error_ratio_rate10m > (14.4 * 0.001)
+            and
+          sli:upi_availability:error_ratio_rate2m > (14.4 * 0.001)
+        for: 1m
+        labels:
+          severity: page
+          slo: upi_availability
+          team: payments
+        annotations:
+          summary: "UPI availability SLO burning >14.4x"
+          description: "5xx ratio (10m): {{ $value | humanizePercentage }}. At this rate the 30-day budget is gone in ~2 days."
+          runbook: "docs/operations/upi-slo-burn.md"
+
+      # Production windows — the real thing.
+      - alert: UpiSLOFastBurnProd
+        expr: |
+          sli:upi_availability:error_ratio_rate1h > (14.4 * 0.001)
+            and
+          sli:upi_availability:error_ratio_rate5m > (14.4 * 0.001)
+        for: 2m
+        labels:
+          severity: page
+          slo: upi_availability
+          team: payments
+          flavor: production-windows
+        annotations:
+          summary: "UPI SLO fast burn (production windows: 1h @ 14.4x)"
+          runbook: "docs/operations/upi-slo-burn.md"

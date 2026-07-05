@@ -1,0 +1,11 @@
+# Account 1 (Management & Observability) — only the observability stack runs here.
+core-banking:        { enabled: false }
+payments:            { enabled: false }
+retail-banking:      { enabled: false }
+customer-identity:   { enabled: false }
+fraud-risk:          { enabled: false }
+notifications:       { enabled: false }
+audit-compliance:    { enabled: false }
+legacy-stack:        { enabled: false }
+observability-stack: { enabled: true }
+loadrunner:          { enabled: false }

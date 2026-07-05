@@ -1,0 +1,3795 @@
+name: bankobserve360
+services:
+  aadhaar-adapter:
+    container_name: bankobs-aadhaar-adapter
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: aadhaar-adapter
+      OTEL_SERVICE_NAMESPACE: banking-identity
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: aadhaar-adapter
+      SERVICE_PORT: '8032'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8032/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8032
+      published: '18032'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/aadhaar-adapter:1.0.0
+  account-service:
+    container_name: bankobs-account-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: account-service
+      OTEL_SERVICE_NAMESPACE: banking-core
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: account-service
+      SERVICE_PORT: '8001'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8001/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8001
+      published: '18001'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/account-service:1.0.0
+  alertmanager:
+    command:
+    - --config.file=/etc/alertmanager/alertmanager.yml
+    - --storage.path=/alertmanager
+    container_name: bankobs-alertmanager
+    healthcheck:
+      test:
+      - CMD
+      - wget
+      - -q
+      - -O-
+      - http://localhost:9093/-/healthy
+      timeout: 3s
+      interval: 10s
+      retries: 5
+    image: prom/alertmanager:v0.26.0
+    mem_limit: '268435456'
+    networks:
+      account1-vpc: null
+    ports:
+    - mode: ingress
+      target: 9093
+      published: '9093'
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ./config/alertmanager/alertmanager.yml
+      target: /etc/alertmanager/alertmanager.yml
+      read_only: true
+      bind: {}
+    - type: volume
+      source: alertmanager-data
+      target: /alertmanager
+      volume: {}
+  aml-service:
+    container_name: bankobs-aml-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: aml-service
+      OTEL_SERVICE_NAMESPACE: banking-fraud
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: aml-service
+      SERVICE_PORT: '8042'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8042/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8042
+      published: '18042'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/aml-service:1.0.0
+  audit-service:
+    container_name: bankobs-audit-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: audit-service
+      OTEL_SERVICE_NAMESPACE: banking-audit
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: audit-service
+      SERVICE_PORT: '8060'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8060/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8060
+      published: '18060'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/audit-service:1.0.0
+  auth-service:
+    container_name: bankobs-auth-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: auth-service
+      OTEL_SERVICE_NAMESPACE: banking-gateway
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: auth-service
+      SERVICE_PORT: '8080'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8080/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '134217728'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8080
+      published: '18080'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/auth-service:1.0.0
+  balance-service:
+    container_name: bankobs-balance-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: balance-service
+      OTEL_SERVICE_NAMESPACE: banking-core
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: balance-service
+      SERVICE_PORT: '8003'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8003/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8003
+      published: '18003'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/balance-service:1.0.0
+  bharat-qr-service:
+    container_name: bankobs-bharat-qr-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: bharat-qr-service
+      OTEL_SERVICE_NAMESPACE: banking-payments
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: bharat-qr-service
+      SERVICE_PORT: '8016'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8016/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8016
+      published: '18016'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/bharat-qr-service:1.0.0
+  branch-service:
+    container_name: bankobs-branch-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: branch-service
+      OTEL_SERVICE_NAMESPACE: banking-core
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: branch-service
+      SERVICE_PORT: '8007'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8007/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8007
+      published: '18007'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/branch-service:1.0.0
+  case-management:
+    container_name: bankobs-case-management
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: case-management
+      OTEL_SERVICE_NAMESPACE: banking-fraud
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: case-management
+      SERVICE_PORT: '8045'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8045/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8045
+      published: '18045'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/case-management:1.0.0
+  cassandra:
+    container_name: bankobs-cassandra
+    environment:
+      CASSANDRA_CLUSTER_NAME: bankobs-payments
+      CASSANDRA_DC: datacenter1
+      CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
+      CASSANDRA_RACK: rack1
+      HEAP_NEWSIZE: 256M
+      MAX_HEAP_SIZE: 1G
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - nodetool status | grep -E '^UN' || exit 1
+      timeout: 10s
+      interval: 15s
+      retries: 20
+      start_period: 1m0s
+    image: cassandra:4.1
+    mem_limit: '2147483648'
+    networks:
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 9042
+      published: '9042'
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: volume
+      source: cassandra-data
+      target: /var/lib/cassandra
+      volume: {}
+    - type: bind
+      source: ./infrastructure/databases/cassandra/init-scripts
+      target: /docker-entrypoint-initdb.d
+      read_only: true
+      bind: {}
+  cassandra-init:
+    depends_on:
+      cassandra:
+        condition: service_healthy
+        required: true
+    entrypoint:
+    - bash
+    - -c
+    - '
+
+      until cqlsh cassandra -e ''describe keyspaces'' >/dev/null 2>&1; do echo ''waiting''; sleep 5; done;
+
+      for f in /init/*.cql; do echo "running $$f"; cqlsh cassandra -f "$$f"; done;
+
+      echo done
+
+      '
+    image: cassandra:4.1
+    networks:
+      account2-data: null
+    restart: 'no'
+    volumes:
+    - type: bind
+      source: ./infrastructure/databases/cassandra/init-scripts
+      target: /init
+      read_only: true
+      bind: {}
+  cbs-adapter:
+    container_name: bankobs-cbs-adapter
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: cbs-adapter
+      OTEL_SERVICE_NAMESPACE: banking-core
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: cbs-adapter
+      SERVICE_PORT: '8008'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8008/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '134217728'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8008
+      published: '18008'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/cbs-adapter:1.0.0
+  cersai-adapter:
+    container_name: bankobs-cersai-adapter
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: cersai-adapter
+      OTEL_SERVICE_NAMESPACE: banking-audit
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: cersai-adapter
+      SERVICE_PORT: '8063'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8063/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8063
+      published: '18063'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/cersai-adapter:1.0.0
+  cheque-service:
+    container_name: bankobs-cheque-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: cheque-service
+      OTEL_SERVICE_NAMESPACE: banking-core
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: cheque-service
+      SERVICE_PORT: '8006'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8006/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8006
+      published: '18006'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/cheque-service:1.0.0
+  ckyc-service:
+    container_name: bankobs-ckyc-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: ckyc-service
+      OTEL_SERVICE_NAMESPACE: banking-identity
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: ckyc-service
+      SERVICE_PORT: '8034'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8034/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8034
+      published: '18034'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/ckyc-service:1.0.0
+  compliance-checker:
+    container_name: bankobs-compliance-checker
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: compliance-checker
+      OTEL_SERVICE_NAMESPACE: banking-audit
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: compliance-checker
+      SERVICE_PORT: '8064'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8064/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8064
+      published: '18064'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/compliance-checker:1.0.0
+  consent-service:
+    container_name: bankobs-consent-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: consent-service
+      OTEL_SERVICE_NAMESPACE: banking-identity
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: consent-service
+      SERVICE_PORT: '8036'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8036/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8036
+      published: '18036'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/consent-service:1.0.0
+  credit-card-service:
+    container_name: bankobs-credit-card-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: credit-card-service
+      OTEL_SERVICE_NAMESPACE: banking-retail
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: credit-card-service
+      SERVICE_PORT: '8024'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8024/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8024
+      published: '18024'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/credit-card-service:1.0.0
+  demat-service:
+    container_name: bankobs-demat-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: demat-service
+      OTEL_SERVICE_NAMESPACE: banking-retail
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: demat-service
+      SERVICE_PORT: '8026'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8026/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8026
+      published: '18026'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/demat-service:1.0.0
+  elasticsearch:
+    container_name: bankobs-elasticsearch
+    environment:
+      ES_JAVA_OPTS: -Xms1g -Xmx1g
+      cluster.name: bankobs-es
+      discovery.type: single-node
+      xpack.security.enabled: 'false'
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - curl -sf http://localhost:9200/_cluster/health | grep -E '"status":"(green|yellow)"'
+      timeout: 5s
+      interval: 10s
+      retries: 30
+      start_period: 30s
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.4
+    mem_limit: '1572864000'
+    networks:
+      account1-vpc: null
+    ports:
+    - mode: ingress
+      target: 9200
+      published: '9200'
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: volume
+      source: elasticsearch-data
+      target: /usr/share/elasticsearch/data
+      volume: {}
+  elasticsearch-init:
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+        required: true
+    entrypoint:
+    - /bin/sh
+    - -c
+    - sh /init/01-init.sh
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    image: curlimages/curl:8.5.0
+    networks:
+      account1-vpc: null
+    restart: 'no'
+    volumes:
+    - type: bind
+      source: ./infrastructure/databases/elasticsearch/init-scripts
+      target: /init
+      read_only: true
+      bind: {}
+  eligibility-engine:
+    container_name: bankobs-eligibility-engine
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: eligibility-engine
+      OTEL_SERVICE_NAMESPACE: banking-retail
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: eligibility-engine
+      SERVICE_PORT: '8028'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8028/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8028
+      published: '18028'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/eligibility-engine:1.0.0
+  email-service:
+    container_name: bankobs-email-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: email-service
+      OTEL_SERVICE_NAMESPACE: banking-notifications
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: email-service
+      SERVICE_PORT: '8052'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8052/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8052
+      published: '18052'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/email-service:1.0.0
+  fd-service:
+    container_name: bankobs-fd-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: fd-service
+      OTEL_SERVICE_NAMESPACE: banking-retail
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: fd-service
+      SERVICE_PORT: '8022'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8022/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8022
+      published: '18022'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/fd-service:1.0.0
+  fluent-bit:
+    container_name: bankobs-fluent-bit
+    depends_on:
+      loki:
+        condition: service_healthy
+        required: true
+    image: fluent/fluent-bit:2.2.2
+    mem_limit: '268435456'
+    networks:
+      account1-vpc: null
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ./config/fluent-bit/fluent-bit.conf
+      target: /fluent-bit/etc/fluent-bit.conf
+      read_only: true
+      bind: {}
+    - type: bind
+      source: ./config/fluent-bit/parsers.conf
+      target: /fluent-bit/etc/parsers.conf
+      read_only: true
+      bind: {}
+    - type: bind
+      source: ./config/fluent-bit/pii-mask.lua
+      target: /fluent-bit/etc/pii-mask.lua
+      read_only: true
+      bind: {}
+    - type: bind
+      source: /var/lib/docker/containers
+      target: /var/lib/docker/containers
+      read_only: true
+      bind: {}
+    - type: volume
+      source: fluent-bit-state
+      target: /fluent-bit/state
+      volume: {}
+  fraud-detection:
+    container_name: bankobs-fraud-detection
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: fraud-detection
+      OTEL_SERVICE_NAMESPACE: banking-fraud
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: fraud-detection
+      SERVICE_PORT: '8040'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8040/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8040
+      published: '18040'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/fraud-detection:1.0.0
+  fx-service:
+    container_name: bankobs-fx-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: fx-service
+      OTEL_SERVICE_NAMESPACE: banking-payments
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: fx-service
+      SERVICE_PORT: '8017'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8017/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8017
+      published: '18017'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/fx-service:1.0.0
+  gateway-service:
+    container_name: bankobs-gateway-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: gateway-service
+      OTEL_SERVICE_NAMESPACE: banking-gateway
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: gateway-service
+      SERVICE_PORT: '8000'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8000/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '134217728'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8000
+      published: '18000'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/gateway-service:1.0.0
+  grafana:
+    container_name: bankobs-grafana
+    depends_on:
+      jaeger:
+        condition: service_started
+        required: true
+      loki:
+        condition: service_started
+        required: true
+      prometheus:
+        condition: service_started
+        required: true
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: 'true'
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_USER: admin
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+    healthcheck:
+      test:
+      - CMD
+      - wget
+      - -q
+      - -O-
+      - http://localhost:3000/api/health
+      timeout: 3s
+      interval: 10s
+      retries: 5
+    image: grafana/grafana:10.3.1
+    mem_limit: '536870912'
+    networks:
+      account1-vpc: null
+    ports:
+    - mode: ingress
+      target: 3000
+      published: '13000'
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ./config/grafana/provisioning
+      target: /etc/grafana/provisioning
+      read_only: true
+      bind: {}
+    - type: bind
+      source: ./config/grafana/dashboards
+      target: /var/lib/grafana/dashboards
+      read_only: true
+      bind: {}
+    - type: volume
+      source: grafana-data
+      target: /var/lib/grafana
+      volume: {}
+  ibm-mq-bridge:
+    container_name: bankobs-ibm-mq-bridge
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: ibm-mq-bridge
+      OTEL_SERVICE_NAMESPACE: legacy-cbs
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: ibm-mq-bridge
+      SERVICE_PORT: '8072'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8072/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '134217728'
+    networks:
+      account3-vpc: null
+    ports:
+    - mode: ingress
+      target: 8072
+      published: '18072'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/ibm-mq-bridge:1.0.0
+  identity-vault:
+    container_name: bankobs-identity-vault
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: identity-vault
+      OTEL_SERVICE_NAMESPACE: banking-identity
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: identity-vault
+      SERVICE_PORT: '8035'
+      SERVICE_VERSION: 1.0.0
+      VAULT_ENCRYPTION_KEY: bankobs-vault-encryption-key-32!
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8035/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '134217728'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8035
+      published: '18035'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/identity-vault:1.0.0
+  imps-service:
+    container_name: bankobs-imps-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: imps-service
+      OTEL_SERVICE_NAMESPACE: banking-payments
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: imps-service
+      SERVICE_PORT: '8014'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8014/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8014
+      published: '18014'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/imps-service:1.0.0
+  insurance-service:
+    container_name: bankobs-insurance-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: insurance-service
+      OTEL_SERVICE_NAMESPACE: banking-retail
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: insurance-service
+      SERVICE_PORT: '8025'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8025/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8025
+      published: '18025'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/insurance-service:1.0.0
+  interest-engine:
+    container_name: bankobs-interest-engine
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: interest-engine
+      OTEL_SERVICE_NAMESPACE: banking-core
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: interest-engine
+      SERVICE_PORT: '8005'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8005/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8005
+      published: '18005'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/interest-engine:1.0.0
+  jaeger:
+    container_name: bankobs-jaeger
+    environment:
+      COLLECTOR_OTLP_ENABLED: 'true'
+      MEMORY_MAX_TRACES: '100000'
+      SPAN_STORAGE_TYPE: memory
+    healthcheck:
+      test:
+      - CMD
+      - wget
+      - -q
+      - -O-
+      - http://localhost:16686/
+      timeout: 3s
+      interval: 10s
+      retries: 5
+    image: jaegertracing/all-in-one:1.53
+    mem_limit: '1073741824'
+    networks:
+      account1-vpc: null
+    ports:
+    - mode: ingress
+      target: 16686
+      published: '16686'
+      protocol: tcp
+    - mode: ingress
+      target: 14268
+      published: '14268'
+      protocol: tcp
+    restart: unless-stopped
+  kafka:
+    container_name: bankobs-kafka
+    environment:
+      CLUSTER_ID: BankObserve360Cluster1A
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_NODE_ID: '1'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: '1'
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: '1'
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: '1'
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1
+      timeout: 5s
+      interval: 10s
+      retries: 20
+      start_period: 30s
+    image: apache/kafka:3.7.0
+    mem_limit: '1073741824'
+    networks:
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 9092
+      published: '9092'
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: volume
+      source: kafka-data
+      target: /var/lib/kafka/data
+      volume: {}
+  kafka-init:
+    depends_on:
+      kafka:
+        condition: service_healthy
+        required: true
+    entrypoint:
+    - bash
+    - /init/topics.sh
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_REPLICATION_FACTOR: '1'
+      PATH: /opt/kafka/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    image: apache/kafka:3.7.0
+    networks:
+      account2-data: null
+    restart: 'no'
+    volumes:
+    - type: bind
+      source: ./infrastructure/messaging/kafka
+      target: /init
+      read_only: true
+      bind: {}
+  kyc-service:
+    container_name: bankobs-kyc-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: kyc-service
+      OTEL_SERVICE_NAMESPACE: banking-identity
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: kyc-service
+      SERVICE_PORT: '8030'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8030/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8030
+      published: '18030'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/kyc-service:1.0.0
+  ledger-service:
+    container_name: bankobs-ledger-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: ledger-service
+      OTEL_SERVICE_NAMESPACE: banking-core
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: ledger-service
+      SERVICE_PORT: '8002'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8002/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8002
+      published: '18002'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/ledger-service:1.0.0
+  license-checker:
+    container_name: bankobs-license-checker
+    environment:
+      HOST_HOSTNAME: ${HOST_HOSTNAME:-}
+      HOST_MAC: ${HOST_MAC:-}
+      HOST_MACHINE_ID: ${HOST_MACHINE_ID:-}
+      LICENSE_KEY: ${LICENSE_KEY:-}
+    healthcheck:
+      test:
+      - NONE
+    image: public.ecr.aws/w8x4g9h7/obs-v1/license-checker:1.0.0
+    networks:
+      account1-vpc: null
+      account2-app: null
+      account2-data: null
+      account3-vpc: null
+    restart: 'no'
+  loan-origination:
+    container_name: bankobs-loan-origination
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: loan-origination
+      OTEL_SERVICE_NAMESPACE: banking-retail
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: loan-origination
+      SERVICE_PORT: '8021'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8021/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8021
+      published: '18021'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/loan-origination:1.0.0
+  loan-service:
+    container_name: bankobs-loan-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: loan-service
+      OTEL_SERVICE_NAMESPACE: banking-retail
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: loan-service
+      SERVICE_PORT: '8020'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8020/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8020
+      published: '18020'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/loan-service:1.0.0
+  loki:
+    command:
+    - -config.file=/etc/loki/loki-config.yaml
+    container_name: bankobs-loki
+    healthcheck:
+      test:
+      - CMD
+      - wget
+      - -q
+      - -O-
+      - http://localhost:3100/ready
+      timeout: 3s
+      interval: 10s
+      retries: 10
+    image: grafana/loki:2.9.4
+    mem_limit: '805306368'
+    networks:
+      account1-vpc: null
+    ports:
+    - mode: ingress
+      target: 3100
+      published: '3100'
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ./config/loki/loki-config.yaml
+      target: /etc/loki/loki-config.yaml
+      read_only: true
+      bind: {}
+    - type: volume
+      source: loki-data
+      target: /loki
+      volume: {}
+  mongodb:
+    container_name: bankobs-mongodb
+    environment:
+      MONGO_INITDB_ROOT_PASSWORD: Training123!
+      MONGO_INITDB_ROOT_USERNAME: bankobs
+    healthcheck:
+      test:
+      - CMD
+      - mongosh
+      - --quiet
+      - --eval
+      - db.adminCommand('ping')
+      timeout: 5s
+      interval: 10s
+      retries: 10
+    image: mongo:7
+    mem_limit: '1073741824'
+    networks:
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 27017
+      published: '27017'
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: volume
+      source: mongodb-data
+      target: /data/db
+      volume: {}
+    - type: bind
+      source: ./infrastructure/databases/mongodb/init-scripts
+      target: /docker-entrypoint-initdb.d
+      read_only: true
+      bind: {}
+  nach-service:
+    container_name: bankobs-nach-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: nach-service
+      OTEL_SERVICE_NAMESPACE: banking-payments
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: nach-service
+      SERVICE_PORT: '8015'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8015/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8015
+      published: '18015'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/nach-service:1.0.0
+  neft-service:
+    container_name: bankobs-neft-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: neft-service
+      OTEL_SERVICE_NAMESPACE: banking-payments
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: neft-service
+      SERVICE_PORT: '8012'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8012/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8012
+      published: '18012'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/neft-service:1.0.0
+  notification-orchestrator:
+    container_name: bankobs-notification-orchestrator
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: notification-orchestrator
+      OTEL_SERVICE_NAMESPACE: banking-notifications
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: notification-orchestrator
+      SERVICE_PORT: '8050'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8050/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8050
+      published: '18050'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/notification-orchestrator:1.0.0
+  onboarding-service:
+    container_name: bankobs-onboarding-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: onboarding-service
+      OTEL_SERVICE_NAMESPACE: banking-identity
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: onboarding-service
+      SERVICE_PORT: '8031'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8031/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8031
+      published: '18031'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/onboarding-service:1.0.0
+  oracle:
+    container_name: bankobs-oracle
+    environment:
+      APP_USER: BANKOBS_CORE
+      APP_USER_PASSWORD: Training123!
+      ORACLE_DATABASE: XEPDB1
+      ORACLE_PASSWORD: Training123!
+    healthcheck:
+      test:
+      - CMD
+      - healthcheck.sh
+      timeout: 10s
+      interval: 30s
+      retries: 30
+      start_period: 1m30s
+    image: gvenzl/oracle-xe:21-slim
+    mem_limit: '2147483648'
+    networks:
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 1521
+      published: '1521'
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: volume
+      source: oracle-data
+      target: /opt/oracle/oradata
+      volume: {}
+    - type: bind
+      source: ./infrastructure/databases/oracle/init-scripts
+      target: /container-entrypoint-initdb.d
+      read_only: true
+      bind: {}
+  otel-collector:
+    command:
+    - --config=/etc/otel/config.yaml
+    container_name: bankobs-otel
+    depends_on:
+      jaeger:
+        condition: service_started
+        required: true
+      loki:
+        condition: service_started
+        required: true
+      prometheus:
+        condition: service_started
+        required: true
+    environment:
+      OBSERVABILITY_MODE: full
+    healthcheck:
+      test:
+      - CMD
+      - wget
+      - -q
+      - -O-
+      - http://localhost:13133/
+      timeout: 3s
+      interval: 10s
+      retries: 5
+    image: otel/opentelemetry-collector-contrib:0.92.0
+    mem_limit: '1073741824'
+    networks:
+      account1-vpc: null
+      account2-app: null
+      account2-data: null
+      account3-vpc: null
+    ports:
+    - mode: ingress
+      target: 4317
+      published: '4317'
+      protocol: tcp
+    - mode: ingress
+      target: 4318
+      published: '4318'
+      protocol: tcp
+    - mode: ingress
+      target: 8888
+      published: '8888'
+      protocol: tcp
+    - mode: ingress
+      target: 13133
+      published: '13133'
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ./config/otel/otel-collector-config.yaml
+      target: /etc/otel/config.yaml
+      read_only: true
+      bind: {}
+  pan-adapter:
+    container_name: bankobs-pan-adapter
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: pan-adapter
+      OTEL_SERVICE_NAMESPACE: banking-identity
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: pan-adapter
+      SERVICE_PORT: '8033'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8033/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8033
+      published: '18033'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/pan-adapter:1.0.0
+  payment-gateway:
+    container_name: bankobs-payment-gateway
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: payment-gateway
+      OTEL_SERVICE_NAMESPACE: banking-payments
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: payment-gateway
+      SERVICE_PORT: '8010'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8010/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '134217728'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8010
+      published: '18010'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/payment-gateway:1.0.0
+  payment-router:
+    container_name: bankobs-payment-router
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: payment-router
+      OTEL_SERVICE_NAMESPACE: banking-payments
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: payment-router
+      SERVICE_PORT: '8019'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8019/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '134217728'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8019
+      published: '18019'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/payment-router:1.0.0
+  pci-logger:
+    container_name: bankobs-pci-logger
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: pci-logger
+      OTEL_SERVICE_NAMESPACE: banking-audit
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: pci-logger
+      SERVICE_PORT: '8062'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8062/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '134217728'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8062
+      published: '18062'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/pci-logger:1.0.0
+  postgres:
+    container_name: bankobs-postgres
+    environment:
+      POSTGRES_DB: bankobs_identity
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U bankobs -d bankobs_identity
+      timeout: 5s
+      interval: 5s
+      retries: 20
+    image: postgres:15-alpine
+    mem_limit: '536870912'
+    networks:
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 5432
+      published: '15432'
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: volume
+      source: postgres-data
+      target: /var/lib/postgresql/data
+      volume: {}
+    - type: bind
+      source: ./infrastructure/databases/postgres/init-scripts
+      target: /docker-entrypoint-initdb.d
+      read_only: true
+      bind: {}
+  prometheus:
+    command:
+    - --config.file=/etc/prometheus/prometheus.yml
+    - --storage.tsdb.path=/prometheus
+    - --storage.tsdb.retention.time=72h
+    - --web.enable-remote-write-receiver
+    - --web.enable-lifecycle
+    container_name: bankobs-prometheus
+    healthcheck:
+      test:
+      - CMD
+      - wget
+      - -q
+      - -O-
+      - http://localhost:9090/-/healthy
+      timeout: 3s
+      interval: 10s
+      retries: 5
+    image: prom/prometheus:v2.49.1
+    mem_limit: '1073741824'
+    networks:
+      account1-vpc: null
+      account2-app: null
+      account2-data: null
+      account3-vpc: null
+    ports:
+    - mode: ingress
+      target: 9090
+      published: '9090'
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ./config/prometheus/prometheus.yml
+      target: /etc/prometheus/prometheus.yml
+      read_only: true
+      bind: {}
+    - type: bind
+      source: ./config/prometheus/alerts
+      target: /etc/prometheus/alerts
+      read_only: true
+      bind: {}
+    - type: volume
+      source: prometheus-data
+      target: /prometheus
+      volume: {}
+  push-service:
+    container_name: bankobs-push-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: push-service
+      OTEL_SERVICE_NAMESPACE: banking-notifications
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: push-service
+      SERVICE_PORT: '8053'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8053/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8053
+      published: '18053'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/push-service:1.0.0
+  rabbitmq:
+    command:
+    - sh
+    - -c
+    - '
+
+      echo ''load_definitions = /etc/rabbitmq/definitions.json'' > /etc/rabbitmq/rabbitmq.conf &&
+
+      rabbitmq-server
+
+      '
+    container_name: bankobs-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: guest
+    healthcheck:
+      test:
+      - CMD
+      - rabbitmq-diagnostics
+      - -q
+      - ping
+      timeout: 10s
+      interval: 10s
+      retries: 10
+    image: rabbitmq:3.12-management-alpine
+    mem_limit: '536870912'
+    networks:
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 5672
+      published: '5672'
+      protocol: tcp
+    - mode: ingress
+      target: 15672
+      published: '15672'
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: volume
+      source: rabbitmq-data
+      target: /var/lib/rabbitmq
+      volume: {}
+    - type: bind
+      source: ./infrastructure/messaging/rabbitmq/definitions.json
+      target: /etc/rabbitmq/definitions.json
+      read_only: true
+      bind: {}
+  rate-limiter:
+    container_name: bankobs-rate-limiter
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: rate-limiter
+      OTEL_SERVICE_NAMESPACE: banking-gateway
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: rate-limiter
+      SERVICE_PORT: '8082'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8082/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '134217728'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8082
+      published: '18082'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/rate-limiter:1.0.0
+  rbi-reporter:
+    container_name: bankobs-rbi-reporter
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: rbi-reporter
+      OTEL_SERVICE_NAMESPACE: banking-audit
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: rbi-reporter
+      SERVICE_PORT: '8061'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8061/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8061
+      published: '18061'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/rbi-reporter:1.0.0
+  rd-service:
+    container_name: bankobs-rd-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: rd-service
+      OTEL_SERVICE_NAMESPACE: banking-retail
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: rd-service
+      SERVICE_PORT: '8023'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8023/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8023
+      published: '18023'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/rd-service:1.0.0
+  redis:
+    command:
+    - redis-server
+    - /usr/local/etc/redis/redis.conf
+    container_name: bankobs-redis
+    healthcheck:
+      test:
+      - CMD
+      - redis-cli
+      - ping
+      timeout: 3s
+      interval: 5s
+      retries: 5
+    image: redis:7-alpine
+    mem_limit: '1342177280'
+    networks:
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 6379
+      published: '16379'
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: volume
+      source: redis-data
+      target: /data
+      volume: {}
+    - type: bind
+      source: ./infrastructure/databases/redis/redis.conf
+      target: /usr/local/etc/redis/redis.conf
+      read_only: true
+      bind: {}
+  remittance-service:
+    container_name: bankobs-remittance-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: remittance-service
+      OTEL_SERVICE_NAMESPACE: banking-payments
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: remittance-service
+      SERVICE_PORT: '8018'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8018/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8018
+      published: '18018'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/remittance-service:1.0.0
+  report-generator:
+    container_name: bankobs-report-generator
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: report-generator
+      OTEL_SERVICE_NAMESPACE: banking-audit
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: report-generator
+      SERVICE_PORT: '8065'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8065/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8065
+      published: '18065'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/report-generator:1.0.0
+  risk-scoring:
+    container_name: bankobs-risk-scoring
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: risk-scoring
+      OTEL_SERVICE_NAMESPACE: banking-fraud
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: risk-scoring
+      SERVICE_PORT: '8044'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8044/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8044
+      published: '18044'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/risk-scoring:1.0.0
+  rtgs-service:
+    container_name: bankobs-rtgs-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: rtgs-service
+      OTEL_SERVICE_NAMESPACE: banking-payments
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: rtgs-service
+      SERVICE_PORT: '8013'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8013/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8013
+      published: '18013'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/rtgs-service:1.0.0
+  rules-engine:
+    container_name: bankobs-rules-engine
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: rules-engine
+      OTEL_SERVICE_NAMESPACE: banking-fraud
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: rules-engine
+      SERVICE_PORT: '8041'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8041/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8041
+      published: '18041'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/rules-engine:1.0.0
+  sanctions-service:
+    container_name: bankobs-sanctions-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: sanctions-service
+      OTEL_SERVICE_NAMESPACE: banking-fraud
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: sanctions-service
+      SERVICE_PORT: '8043'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8043/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '134217728'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8043
+      published: '18043'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/sanctions-service:1.0.0
+  sms-gateway:
+    container_name: bankobs-sms-gateway
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: sms-gateway
+      OTEL_SERVICE_NAMESPACE: banking-notifications
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: sms-gateway
+      SERVICE_PORT: '8051'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8051/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8051
+      published: '18051'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/sms-gateway:1.0.0
+  statement-service:
+    container_name: bankobs-statement-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: statement-service
+      OTEL_SERVICE_NAMESPACE: banking-core
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: statement-service
+      SERVICE_PORT: '8004'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8004/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '805306368'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8004
+      published: '18004'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/statement-service:1.0.0
+  tomcat-loan-legacy:
+    container_name: bankobs-tomcat-loan-legacy
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: tomcat-loan-legacy
+      OTEL_SERVICE_NAMESPACE: legacy-cbs
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: tomcat-loan-legacy
+      SERVICE_PORT: '8071'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8071/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '134217728'
+    networks:
+      account3-vpc: null
+    ports:
+    - mode: ingress
+      target: 8071
+      published: '18071'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/tomcat-loan-legacy:1.0.0
+  transaction-monitor:
+    container_name: bankobs-transaction-monitor
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: transaction-monitor
+      OTEL_SERVICE_NAMESPACE: banking-fraud
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: transaction-monitor
+      SERVICE_PORT: '8046'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8046/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '134217728'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8046
+      published: '18046'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/transaction-monitor:1.0.0
+  transit-gateway-proxy:
+    container_name: bankobs-tgw
+    healthcheck:
+      test:
+      - CMD
+      - wget
+      - -q
+      - -O-
+      - http://localhost:8404/stats
+      timeout: 3s
+      interval: 10s
+      retries: 5
+    image: haproxy:2.8-alpine
+    networks:
+      account1-vpc: null
+      account2-app: null
+      account2-data: null
+      account3-vpc: null
+      transit-gateway: null
+    ports:
+    - mode: ingress
+      target: 8404
+      published: '8404'
+      protocol: tcp
+    restart: unless-stopped
+    volumes:
+    - type: bind
+      source: ./config/haproxy/haproxy.cfg
+      target: /usr/local/etc/haproxy/haproxy.cfg
+      read_only: true
+      bind: {}
+  upi-service:
+    container_name: bankobs-upi-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: upi-service
+      OTEL_SERVICE_NAMESPACE: banking-payments
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: upi-service
+      SERVICE_PORT: '8011'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8011/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '134217728'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8011
+      published: '18011'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/upi-service:1.0.0
+  velocity-checker:
+    container_name: bankobs-velocity-checker
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: velocity-checker
+      OTEL_SERVICE_NAMESPACE: banking-fraud
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: velocity-checker
+      SERVICE_PORT: '8047'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8047/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '134217728'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8047
+      published: '18047'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/velocity-checker:1.0.0
+  wealth-service:
+    container_name: bankobs-wealth-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: wealth-service
+      OTEL_SERVICE_NAMESPACE: banking-retail
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: wealth-service
+      SERVICE_PORT: '8027'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8027/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8027
+      published: '18027'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/wealth-service:1.0.0
+  web-portal:
+    container_name: bankobs-web-portal
+    depends_on:
+      gateway-service:
+        condition: service_started
+        required: true
+    environment:
+      BANKOBS_IN_DOCKER: '1'
+      NODE_ENV: production
+      PORT: '8200'
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8200/ || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 25s
+    mem_limit: '268435456'
+    networks:
+      account1-vpc: null
+      account2-app: null
+    ports:
+    - mode: ingress
+      target: 8200
+      published: '8200'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/web-portal:1.0.0
+  weblogic-cbs-simulator:
+    container_name: bankobs-weblogic-cbs-simulator
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: weblogic-cbs-simulator
+      OTEL_SERVICE_NAMESPACE: legacy-cbs
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: weblogic-cbs-simulator
+      SERVICE_PORT: '8070'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8070/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '134217728'
+    networks:
+      account3-vpc: null
+    ports:
+    - mode: ingress
+      target: 8070
+      published: '18070'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/weblogic-cbs-simulator:1.0.0
+  whatsapp-service:
+    container_name: bankobs-whatsapp-service
+    depends_on:
+      license-checker:
+        condition: service_started
+        required: true
+    environment:
+      CASSANDRA_HOSTS: cassandra:9042
+      CASSANDRA_KEYSPACE: bankobs_payments
+      DEPLOYMENT_ENV: training
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      JWT_SECRET: bankobs-training-jwt-secret-2024
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      LOG_LEVEL: INFO
+      MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+      OBSERVABILITY_MODE: full
+      ORACLE_PASSWORD: Training123!
+      ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+      ORACLE_USER: BANKOBS_CORE
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: whatsapp-service
+      OTEL_SERVICE_NAMESPACE: banking-notifications
+      PII_MASKING_MODE: full
+      POSTGRES_HOST: postgres
+      POSTGRES_PASSWORD: Training123!
+      POSTGRES_USER: bankobs
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SERVICE_NAME: whatsapp-service
+      SERVICE_PORT: '8054'
+      SERVICE_VERSION: 1.0.0
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -q -O- http://localhost:8054/health/live || exit 1
+      timeout: 5s
+      interval: 15s
+      retries: 5
+      start_period: 30s
+    mem_limit: '268435456'
+    networks:
+      account2-app: null
+      account2-data: null
+    ports:
+    - mode: ingress
+      target: 8054
+      published: '18054'
+      protocol: tcp
+    restart: unless-stopped
+    image: public.ecr.aws/w8x4g9h7/obs-v1/whatsapp-service:1.0.0
+networks:
+  account1-vpc:
+    name: bankobs-account1-vpc
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 172.20.0.0/24
+  account2-app:
+    name: bankobs-account2-app
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 172.20.1.0/24
+  account2-data:
+    name: bankobs-account2-data
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 172.20.2.0/24
+  account3-vpc:
+    name: bankobs-account3-vpc
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 172.20.3.0/24
+  transit-gateway:
+    name: bankobs-tgw
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 172.20.4.0/24
+volumes:
+  alertmanager-data:
+    name: bankobserve360_alertmanager-data
+  cassandra-data:
+    name: bankobserve360_cassandra-data
+  elasticsearch-data:
+    name: bankobserve360_elasticsearch-data
+  fluent-bit-state:
+    name: bankobserve360_fluent-bit-state
+  grafana-data:
+    name: bankobserve360_grafana-data
+  kafka-data:
+    name: bankobserve360_kafka-data
+  loki-data:
+    name: bankobserve360_loki-data
+  mongodb-data:
+    name: bankobserve360_mongodb-data
+  oracle-data:
+    name: bankobserve360_oracle-data
+  postgres-data:
+    name: bankobserve360_postgres-data
+  prometheus-data:
+    name: bankobserve360_prometheus-data
+  rabbitmq-data:
+    name: bankobserve360_rabbitmq-data
+  redis-data:
+    name: bankobserve360_redis-data

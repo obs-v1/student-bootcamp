@@ -1,0 +1,33 @@
+dependencies:
+- name: core-banking
+  repository: file://../charts/core-banking
+  version: 1.0.0
+- name: payments
+  repository: file://../charts/payments
+  version: 1.0.0
+- name: retail-banking
+  repository: file://../charts/retail-banking
+  version: 1.0.0
+- name: customer-identity
+  repository: file://../charts/customer-identity
+  version: 1.0.0
+- name: fraud-risk
+  repository: file://../charts/fraud-risk
+  version: 1.0.0
+- name: notifications
+  repository: file://../charts/notifications
+  version: 1.0.0
+- name: audit-compliance
+  repository: file://../charts/audit-compliance
+  version: 1.0.0
+- name: legacy-stack
+  repository: file://../charts/legacy-stack
+  version: 1.0.0
+- name: observability-stack
+  repository: file://../charts/observability-stack
+  version: 1.0.0
+- name: loadrunner
+  repository: file://../charts/loadrunner
+  version: 1.0.0
+digest: sha256:89e54696243216ca61437d2c693bc06f23fd120980a0fc75a6f57d68620fc022
+generated: "2026-06-06T22:06:02.367821+05:30"

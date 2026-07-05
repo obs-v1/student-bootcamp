@@ -1,0 +1,11 @@
+# Account 3 (Legacy & Compliance) — legacy + audit + identity-vault.
+core-banking:        { enabled: false }
+payments:            { enabled: false }
+retail-banking:      { enabled: false }
+customer-identity:   { enabled: false }
+fraud-risk:          { enabled: false }
+notifications:       { enabled: false }
+audit-compliance:    { enabled: true }
+legacy-stack:        { enabled: true }
+observability-stack: { enabled: false }
+loadrunner:          { enabled: false }

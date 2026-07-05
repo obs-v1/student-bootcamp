@@ -1,0 +1,356 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [
+    {
+      "asDropdown": false, "icon": "external link", "includeVars": false,
+      "keepTime": true, "tags": [], "targetBlank": true,
+      "title": "Open Jaeger", "tooltip": "Search loan-origination traces",
+      "type": "link",
+      "url": "http://localhost:16686/search?service=loan-origination"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": ["bankobs", "loans", "retail"],
+  "templating": {
+    "list": [
+      {
+        "current": {"text": "All", "value": ".+"},
+        "name": "status",
+        "label": "Status",
+        "options": [
+          {"text": "All",        "value": ".+",                                "selected": true},
+          {"text": "Submitted",  "value": "SUBMITTED"},
+          {"text": "Disbursed",  "value": "DISBURSED"},
+          {"text": "Failed",     "value": "FAILED|CREDIT_FAILED"}
+        ],
+        "query": "All : .+, Submitted : SUBMITTED, Disbursed : DISBURSED, Failed : FAILED|CREDIT_FAILED",
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {"from": "now-3h", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Loans Pipeline",
+  "uid": "loans-pipeline",
+  "version": 1,
+  "weekStart": "",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Applications submitted",
+      "type": "stat",
+      "gridPos": {"x": 0, "y": 0, "w": 6, "h": 4},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({service=\"loan-origination\"} |= \"loan-application-submitted\" [$__range]))",
+          "refId": "A", "queryType": "instant"
+        }
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "orientation": "auto", "textMode": "value",
+        "colorMode": "background", "graphMode": "area", "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "blue"}]},
+          "unit": "short"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Disbursed (count)",
+      "type": "stat",
+      "gridPos": {"x": 6, "y": 0, "w": 6, "h": 4},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({service=\"loan-origination\"} |= \"loan-disbursed\" [$__range]))",
+          "refId": "A", "queryType": "instant"
+        }
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "orientation": "auto", "textMode": "value",
+        "colorMode": "background", "graphMode": "area", "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green"}]},
+          "unit": "short"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Total disbursed (₹)",
+      "type": "stat",
+      "gridPos": {"x": 12, "y": 0, "w": 6, "h": 4},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "targets": [
+        {
+          "expr": "sum(sum_over_time({service=\"loan-origination\"} |= \"loan-disbursed\" | json | unwrap amount [$__range]))",
+          "refId": "A", "queryType": "instant"
+        }
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "orientation": "auto", "textMode": "value",
+        "colorMode": "background", "graphMode": "area", "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [{"color": "purple"}]},
+          "unit": "currencyINR"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Disbursal failures",
+      "type": "stat",
+      "gridPos": {"x": 18, "y": 0, "w": 6, "h": 4},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({service=\"loan-origination\"} |= \"loan-disbursal-failed\" [$__range]))",
+          "refId": "A", "queryType": "instant"
+        }
+      ],
+      "options": {
+        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "orientation": "auto", "textMode": "value",
+        "colorMode": "background", "graphMode": "area", "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "thresholds": {"mode": "absolute", "steps": [
+            {"color": "green", "value": null},
+            {"color": "red",   "value": 1}
+          ]},
+          "unit": "short"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Loan funnel — submitted vs disbursed vs failed",
+      "type": "timeseries",
+      "gridPos": {"x": 0, "y": 4, "w": 12, "h": 8},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "targets": [
+        {
+          "expr": "sum(count_over_time({service=\"loan-origination\"} |= \"loan-application-submitted\" [5m]))",
+          "legendFormat": "Submitted", "refId": "A"
+        },
+        {
+          "expr": "sum(count_over_time({service=\"loan-origination\"} |= \"loan-disbursed\" [5m]))",
+          "legendFormat": "Disbursed", "refId": "B"
+        },
+        {
+          "expr": "sum(count_over_time({service=\"loan-origination\"} |= \"loan-disbursal-failed\" [5m]))",
+          "legendFormat": "Failed", "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "drawStyle": "bars", "lineInterpolation": "linear",
+            "barAlignment": 0, "lineWidth": 1, "fillOpacity": 70,
+            "gradientMode": "opacity", "spanNulls": false,
+            "stacking": {"mode": "none", "group": "A"},
+            "axisLabel": "loans / 5m", "showPoints": "never"
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {"matcher": {"id": "byName", "options": "Submitted"},
+           "properties": [{"id": "color", "value": {"fixedColor": "blue",  "mode": "fixed"}}]},
+          {"matcher": {"id": "byName", "options": "Disbursed"},
+           "properties": [{"id": "color", "value": {"fixedColor": "green", "mode": "fixed"}}]},
+          {"matcher": {"id": "byName", "options": "Failed"},
+           "properties": [{"id": "color", "value": {"fixedColor": "red",   "mode": "fixed"}}]}
+        ]
+      },
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      }
+    },
+    {
+      "id": 6,
+      "title": "Disbursed amount over time (₹)",
+      "type": "timeseries",
+      "gridPos": {"x": 12, "y": 4, "w": 12, "h": 8},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "targets": [
+        {
+          "expr": "sum(sum_over_time({service=\"loan-origination\"} |= \"loan-disbursed\" | json | unwrap amount [5m]))",
+          "legendFormat": "Disbursed", "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"fixedColor": "green", "mode": "fixed"},
+          "custom": {
+            "drawStyle": "line", "lineInterpolation": "smooth",
+            "lineWidth": 2, "fillOpacity": 30, "showPoints": "never",
+            "spanNulls": true, "stacking": {"mode": "none", "group": "A"}
+          },
+          "unit": "currencyINR"
+        }
+      },
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      }
+    },
+    {
+      "id": 7,
+      "title": "Recent loan applications — click trace_id to open Jaeger",
+      "description": "Each row is one loan event. SUBMITTED is blue, DISBURSED is green, FAILED/CREDIT_FAILED is red. Click trace_id to jump to the trace.",
+      "type": "table",
+      "gridPos": {"x": 0, "y": 12, "w": 24, "h": 14},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "targets": [
+        {
+          "expr": "{service=\"loan-origination\"} |~ \"loan-(application-submitted|disbursed|disbursal-failed)\" | json | txn_status=~\"$status\" | line_format \"\"",
+          "refId": "A", "queryType": "range", "maxLines": 200
+        }
+      ],
+      "transformations": [
+        {"id": "extractFields", "options": {"source": "labels"}},
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Line": true, "tsNs": true, "labelTypes": true, "id": true,
+              "service": true, "environment": true, "version": true,
+              "pii_masked": true, "correlation_id": true, "span_id": true,
+              "event": true, "level": true, "workflow_status": true, "stage": true,
+              "thread_name": true, "logger_name": true, "level_value": true,
+              "@version": true, "message": true
+            },
+            "indexByName": {
+              "Time":            0,
+              "txn_status":      1,
+              "application_id":  2,
+              "customer_id":     3,
+              "amount":          4,
+              "tenure_months":   5,
+              "interest_rate":   6,
+              "emi_amount":      7,
+              "loan_id":         8,
+              "credited_to":     9,
+              "fail_reason":    10,
+              "trace_id":       11
+            },
+            "renameByName": {
+              "Time":           "When",
+              "txn_status":     "Status",
+              "application_id": "App ID",
+              "customer_id":    "Customer",
+              "amount":         "Amount",
+              "tenure_months":  "Months",
+              "interest_rate":  "Rate %",
+              "emi_amount":     "EMI",
+              "loan_id":        "Loan ID",
+              "credited_to":    "Credited to",
+              "fail_reason":    "Reason",
+              "trace_id":       "Trace"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto", "inspect": false,
+            "cellOptions": {"type": "auto"}
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "Status"},
+            "properties": [
+              {"id": "custom.cellOptions", "value": {"type": "color-background", "mode": "basic"}},
+              {"id": "mappings", "value": [
+                {"type": "value", "options": {
+                  "SUBMITTED":     {"color": "blue",   "index": 0, "text": "SUBMITTED"},
+                  "DISBURSED":     {"color": "green",  "index": 1, "text": "DISBURSED"},
+                  "FAILED":        {"color": "red",    "index": 2, "text": "FAILED"},
+                  "CREDIT_FAILED": {"color": "red",    "index": 3, "text": "CREDIT_FAILED"}
+                }}
+              ]},
+              {"id": "custom.width", "value": 130}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Amount"},
+            "properties": [
+              {"id": "unit", "value": "currencyINR"},
+              {"id": "custom.cellOptions", "value": {"type": "color-background", "mode": "gradient"}},
+              {"id": "color", "value": {"mode": "continuous-BlPu"}}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "EMI"},
+            "properties": [{"id": "unit", "value": "currencyINR"}]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Rate %"},
+            "properties": [{"id": "unit", "value": "percent"}]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Reason"},
+            "properties": [
+              {"id": "custom.width", "value": 240},
+              {"id": "color", "value": {"fixedColor": "red", "mode": "fixed"}}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Trace"},
+            "properties": [
+              {"id": "custom.cellOptions", "value": {"type": "auto"}},
+              {"id": "links", "value": [
+                {"title": "Open trace in Jaeger",
+                 "url": "http://localhost:16686/trace/${__value.raw}",
+                 "targetBlank": true}
+              ]},
+              {"id": "custom.width", "value": 280}
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "App ID"},
+            "properties": [{"id": "custom.width", "value": 290}]
+          },
+          {
+            "matcher": {"id": "byName", "options": "Loan ID"},
+            "properties": [{"id": "custom.width", "value": 200}]
+          },
+          {
+            "matcher": {"id": "byName", "options": "When"},
+            "properties": [{"id": "custom.width", "value": 175}]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "footer": {"show": false, "reducer": ["sum"], "fields": ""}
+      }
+    }
+  ]
+}
