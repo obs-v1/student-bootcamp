@@ -9,7 +9,8 @@ All images are PUBLIC at public.ecr.aws/w8x4g9h7/obs-v1/* — nothing to build, 
 cp .env.example .env
 make fingerprint            # send the fingerprint to your trainer
 # paste the license you receive into .env as LICENSE_KEY=...
-make compose-up             # bring up the full platform (first run pulls ~60 images)
+make compose-up             # bring up the BANKING APPLICATION (first run pulls images)
+                            # note: no observability tools yet — that's Week 1 (make obs-up)
 make seed                   # load banking data (accounts, transactions, topics)
 make smoke                  # balance → UPI payment → loan application, end-to-end
 make urls                   # every UI and where to find it

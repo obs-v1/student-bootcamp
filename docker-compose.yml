@@ -147,6 +147,8 @@ services:
       source: alertmanager-data
       target: /alertmanager
       volume: {}
+    profiles:
+    - observability
     logging:
       driver: json-file
       options:
@@ -1331,6 +1333,8 @@ services:
       source: fluent-bit-state
       target: /fluent-bit/state
       volume: {}
+    profiles:
+    - observability
     logging:
       driver: json-file
       options:
@@ -1557,6 +1561,8 @@ services:
       source: grafana-data
       target: /var/lib/grafana
       volume: {}
+    profiles:
+    - observability
     logging:
       driver: json-file
       options:
@@ -1872,6 +1878,8 @@ services:
       published: '14268'
       protocol: tcp
     restart: unless-stopped
+    profiles:
+    - observability
     logging:
       driver: json-file
       options:
@@ -2228,6 +2236,8 @@ services:
       source: loki-data
       target: /loki
       volume: {}
+    profiles:
+    - observability
     logging:
       driver: json-file
       options:
@@ -2594,6 +2604,8 @@ services:
       target: /etc/otel/config.yaml
       read_only: true
       bind: {}
+    profiles:
+    - observability
     logging:
       driver: json-file
       options:
@@ -2907,6 +2919,8 @@ services:
       source: prometheus-data
       target: /prometheus
       volume: {}
+    profiles:
+    - observability
     logging:
       driver: json-file
       options:

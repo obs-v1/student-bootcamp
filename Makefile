@@ -607,7 +607,7 @@ help:                ## Show this help
 # ── Deployment paths: compose (local) vs EKS (AWS) ──
 # ────────────────────────────────────────────────────────────────────
 
-compose-up: up       ## Run the full platform locally with docker-compose (alias for `up`)
+compose-up: up       ## Run the BANKING APPLICATION locally (no observability stack)
 
 compose-down: down   ## Stop the local docker-compose platform (alias for `down`)
 
@@ -669,6 +669,33 @@ eks-down:            ## Uninstall the platform and DESTROY all AWS resources
 	-kubectl delete namespace bankobs --timeout=5m 2>/dev/null
 	terraform -chdir=$(EKS_TF_DIR) destroy -var region=$(EKS_REGION) $(if $(EKS_AUTO),-auto-approve,)
 	@echo "✓ all AWS resources destroyed (verify in the console: EKS, EC2, NAT, ECR)"
+
+BOOTCAMP_REPO ?= /Users/skalluru/obs-labs/student-bootcamp
+
+publish-bootcamp:    ## TRAINER: regenerate student-bootcamp, sync to the git repo, commit & push
+	./scripts/build-student-bootcamp.sh
+	rsync -a --delete --exclude .git student-bootcamp/ $(BOOTCAMP_REPO)/
+	cd $(BOOTCAMP_REPO) && git add -A && \
+	  (git diff --cached --quiet && echo "nothing to publish" || \
+	   (git commit -m "course update $$(date +%Y-%m-%d)" && git push && echo "✓ published"))
+
+obs-up:              ## Week 1+: start the observability stack (Grafana, Prometheus, Loki, Jaeger, OTel, Fluent Bit, Alertmanager)
+	@$(COMPOSE) $(COMPOSE_FILES) --profile observability up -d
+	@echo ""
+	@echo "  📊  Grafana   : http://localhost:13000   (admin / admin)"
+	@echo "  🔍  Jaeger    : http://localhost:16686"
+	@echo "  📈  Prometheus: http://localhost:9090"
+	@echo "  📋  Loki      : http://localhost:3100    (query via Grafana → Explore)"
+
+update:              ## Pull the latest course updates (repo + images) and re-apply
+	@git pull --ff-only
+	@$(COMPOSE) $(COMPOSE_FILES) --profile observability pull -q
+	@$(MAKE) compose-up
+	@echo "✓ up to date"
+
+obs-down:            ## Stop only the observability stack (application keeps running)
+	@$(COMPOSE) $(COMPOSE_FILES) --profile observability stop otel-collector jaeger prometheus loki grafana alertmanager fluent-bit 2>/dev/null || true
+	@echo "✓ observability stack stopped; the bank is still running"
 
 ec2-prep:            ## Linux/EC2 host prep: sysctls + prereq checks (run once, needs sudo)
 	@command -v docker >/dev/null || { echo "✗ install docker first (and the compose plugin)"; exit 1; }
