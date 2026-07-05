@@ -4030,7 +4030,7 @@ services:
     ports:
     - mode: ingress
       target: 8200
-      published: '8200'
+      published: '80'
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/web-portal:1.0.0

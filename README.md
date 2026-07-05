@@ -40,7 +40,7 @@ Works natively (the images are x86_64). Checklist:
 3. Clone this WHOLE folder (the compose file bind-mounts `./config` and `./infrastructure`)
 4. `make ec2-prep` — sets `vm.max_map_count` (Elasticsearch dies without it) and checks prereqs
 5. `make fingerprint` — the license binds to the EC2 machine, so run it THERE
-6. Security group: every UI binds 0.0.0.0 (portal :8200, Grafana :13000, Prometheus :9090, Jaeger :16686). Restrict the SG to your IP, or keep ports closed and use SSH tunnels: `ssh -L 8200:localhost:8200 -L 13000:localhost:13000 ec2-user@<ip>`
+6. Security group: open port 80 for the portal (http://<server-ip>). Other service ports bind 0.0.0.0 too, so restrict the SG to your IP where possible, or use SSH tunnels: `ssh -L 8080:localhost:80 ec2-user@<ip>`
 
 ## If something misbehaves
 

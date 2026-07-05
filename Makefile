@@ -25,7 +25,7 @@ HOST_HOSTNAME   := $(shell hostname)
 export HOST_MACHINE_ID HOST_MAC HOST_HOSTNAME
 
 # Endpoints
-PORTAL         := http://localhost:8200
+PORTAL         := http://localhost
 GRAFANA        := http://localhost:13000
 JAEGER         := http://localhost:16686
 PROM           := http://localhost:9090
