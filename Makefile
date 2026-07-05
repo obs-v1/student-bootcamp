@@ -187,20 +187,6 @@ nuke:                ## Same as `reset` but skips the prompt (DANGEROUS)
 #  TIERED BRING-UP (when you only want part of the stack)
 # ──────────────────────────────────────────────────────────────────────────────
 
-.PHONY: up-infra up-obs up-services up-portal
-
-up-infra:            ## Just infra (Oracle, Postgres, Mongo, Redis, Cassandra, ES, Kafka, RMQ)
-	@$(COMPOSE) -f docker-compose.yml -f docker-compose.infra.yml up -d
-
-up-obs:              ## Just observability (OTel, Grafana, Prometheus, Loki, Jaeger, Fluent Bit)
-	@$(COMPOSE) -f docker-compose.yml -f docker-compose.infra.yml -f docker-compose.observability.yml up -d
-
-up-services:         ## Just the 59 application services
-	@$(COMPOSE) $(COMPOSE_FILES) up -d $(ALL_APP_SVCS)
-
-up-portal:           ## Just the Next.js web portal
-	@$(COMPOSE) $(COMPOSE_FILES) up -d --no-deps web-portal
-
 # ──────────────────────────────────────────────────────────────────────────────
 #  BUILD
 # ──────────────────────────────────────────────────────────────────────────────
