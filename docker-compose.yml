@@ -51,6 +51,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/aadhaar-adapter:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   account-service:
     container_name: bankobs-account-service
     depends_on:
@@ -102,6 +107,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/account-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   alertmanager:
     command:
     - --config.file=/etc/alertmanager/alertmanager.yml
@@ -137,6 +147,11 @@ services:
       source: alertmanager-data
       target: /alertmanager
       volume: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   aml-service:
     container_name: bankobs-aml-service
     depends_on:
@@ -188,6 +203,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/aml-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   audit-service:
     container_name: bankobs-audit-service
     depends_on:
@@ -239,6 +259,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/audit-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   auth-service:
     container_name: bankobs-auth-service
     depends_on:
@@ -290,6 +315,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/auth-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   balance-service:
     container_name: bankobs-balance-service
     depends_on:
@@ -341,6 +371,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/balance-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   bharat-qr-service:
     container_name: bankobs-bharat-qr-service
     depends_on:
@@ -392,6 +427,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/bharat-qr-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   branch-service:
     container_name: bankobs-branch-service
     depends_on:
@@ -443,6 +483,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/branch-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   case-management:
     container_name: bankobs-case-management
     depends_on:
@@ -494,6 +539,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/case-management:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   cassandra:
     container_name: bankobs-cassandra
     environment:
@@ -531,6 +581,11 @@ services:
       target: /docker-entrypoint-initdb.d
       read_only: true
       bind: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   cassandra-init:
     depends_on:
       cassandra:
@@ -558,6 +613,11 @@ services:
       target: /init
       read_only: true
       bind: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   cbs-adapter:
     container_name: bankobs-cbs-adapter
     depends_on:
@@ -609,6 +669,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/cbs-adapter:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   cersai-adapter:
     container_name: bankobs-cersai-adapter
     depends_on:
@@ -660,6 +725,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/cersai-adapter:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   cheque-service:
     container_name: bankobs-cheque-service
     depends_on:
@@ -711,6 +781,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/cheque-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   ckyc-service:
     container_name: bankobs-ckyc-service
     depends_on:
@@ -762,6 +837,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/ckyc-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   compliance-checker:
     container_name: bankobs-compliance-checker
     depends_on:
@@ -813,6 +893,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/compliance-checker:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   consent-service:
     container_name: bankobs-consent-service
     depends_on:
@@ -864,6 +949,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/consent-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   credit-card-service:
     container_name: bankobs-credit-card-service
     depends_on:
@@ -915,6 +1005,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/credit-card-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   demat-service:
     container_name: bankobs-demat-service
     depends_on:
@@ -966,6 +1061,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/demat-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   elasticsearch:
     container_name: bankobs-elasticsearch
     environment:
@@ -996,6 +1096,11 @@ services:
       source: elasticsearch-data
       target: /usr/share/elasticsearch/data
       volume: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   elasticsearch-init:
     depends_on:
       elasticsearch:
@@ -1017,6 +1122,11 @@ services:
       target: /init
       read_only: true
       bind: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   eligibility-engine:
     container_name: bankobs-eligibility-engine
     depends_on:
@@ -1068,6 +1178,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/eligibility-engine:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   email-service:
     container_name: bankobs-email-service
     depends_on:
@@ -1119,6 +1234,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/email-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   fd-service:
     container_name: bankobs-fd-service
     depends_on:
@@ -1170,6 +1290,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/fd-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   fluent-bit:
     container_name: bankobs-fluent-bit
     depends_on:
@@ -1206,6 +1331,11 @@ services:
       source: fluent-bit-state
       target: /fluent-bit/state
       volume: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   fraud-detection:
     container_name: bankobs-fraud-detection
     depends_on:
@@ -1257,6 +1387,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/fraud-detection:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   fx-service:
     container_name: bankobs-fx-service
     depends_on:
@@ -1308,6 +1443,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/fx-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   gateway-service:
     container_name: bankobs-gateway-service
     depends_on:
@@ -1359,6 +1499,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/gateway-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   grafana:
     container_name: bankobs-grafana
     depends_on:
@@ -1412,6 +1557,11 @@ services:
       source: grafana-data
       target: /var/lib/grafana
       volume: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   ibm-mq-bridge:
     container_name: bankobs-ibm-mq-bridge
     depends_on:
@@ -1462,6 +1612,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/ibm-mq-bridge:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   identity-vault:
     container_name: bankobs-identity-vault
     depends_on:
@@ -1514,6 +1669,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/identity-vault:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   imps-service:
     container_name: bankobs-imps-service
     depends_on:
@@ -1565,6 +1725,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/imps-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   insurance-service:
     container_name: bankobs-insurance-service
     depends_on:
@@ -1616,6 +1781,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/insurance-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   interest-engine:
     container_name: bankobs-interest-engine
     depends_on:
@@ -1667,6 +1837,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/interest-engine:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   jaeger:
     container_name: bankobs-jaeger
     environment:
@@ -1697,6 +1872,11 @@ services:
       published: '14268'
       protocol: tcp
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   kafka:
     container_name: bankobs-kafka
     environment:
@@ -1736,6 +1916,11 @@ services:
       source: kafka-data
       target: /var/lib/kafka/data
       volume: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   kafka-init:
     depends_on:
       kafka:
@@ -1758,6 +1943,11 @@ services:
       target: /init
       read_only: true
       bind: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   kyc-service:
     container_name: bankobs-kyc-service
     depends_on:
@@ -1809,6 +1999,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/kyc-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   ledger-service:
     container_name: bankobs-ledger-service
     depends_on:
@@ -1860,6 +2055,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/ledger-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   license-checker:
     container_name: bankobs-license-checker
     environment:
@@ -1877,6 +2077,11 @@ services:
       account2-data: null
       account3-vpc: null
     restart: 'no'
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   loan-origination:
     container_name: bankobs-loan-origination
     depends_on:
@@ -1928,6 +2133,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/loan-origination:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   loan-service:
     container_name: bankobs-loan-service
     depends_on:
@@ -1979,6 +2189,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/loan-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   loki:
     command:
     - -config.file=/etc/loki/loki-config.yaml
@@ -2013,6 +2228,11 @@ services:
       source: loki-data
       target: /loki
       volume: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   mongodb:
     container_name: bankobs-mongodb
     environment:
@@ -2048,6 +2268,11 @@ services:
       target: /docker-entrypoint-initdb.d
       read_only: true
       bind: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   nach-service:
     container_name: bankobs-nach-service
     depends_on:
@@ -2099,6 +2324,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/nach-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   neft-service:
     container_name: bankobs-neft-service
     depends_on:
@@ -2150,6 +2380,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/neft-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   notification-orchestrator:
     container_name: bankobs-notification-orchestrator
     depends_on:
@@ -2201,6 +2436,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/notification-orchestrator:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   onboarding-service:
     container_name: bankobs-onboarding-service
     depends_on:
@@ -2252,6 +2492,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/onboarding-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   oracle:
     container_name: bankobs-oracle
     environment:
@@ -2287,6 +2532,11 @@ services:
       target: /container-entrypoint-initdb.d
       read_only: true
       bind: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   otel-collector:
     command:
     - --config=/etc/otel/config.yaml
@@ -2344,6 +2594,11 @@ services:
       target: /etc/otel/config.yaml
       read_only: true
       bind: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   pan-adapter:
     container_name: bankobs-pan-adapter
     depends_on:
@@ -2395,6 +2650,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/pan-adapter:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   payment-gateway:
     container_name: bankobs-payment-gateway
     depends_on:
@@ -2446,6 +2706,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/payment-gateway:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   payment-router:
     container_name: bankobs-payment-router
     depends_on:
@@ -2497,6 +2762,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/payment-router:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   pci-logger:
     container_name: bankobs-pci-logger
     depends_on:
@@ -2548,6 +2818,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/pci-logger:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   postgres:
     container_name: bankobs-postgres
     environment:
@@ -2581,6 +2856,11 @@ services:
       target: /docker-entrypoint-initdb.d
       read_only: true
       bind: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   prometheus:
     command:
     - --config.file=/etc/prometheus/prometheus.yml
@@ -2627,6 +2907,11 @@ services:
       source: prometheus-data
       target: /prometheus
       volume: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   push-service:
     container_name: bankobs-push-service
     depends_on:
@@ -2678,6 +2963,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/push-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   rabbitmq:
     command:
     - sh
@@ -2726,6 +3016,11 @@ services:
       target: /etc/rabbitmq/definitions.json
       read_only: true
       bind: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   rate-limiter:
     container_name: bankobs-rate-limiter
     depends_on:
@@ -2777,6 +3072,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/rate-limiter:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   rbi-reporter:
     container_name: bankobs-rbi-reporter
     depends_on:
@@ -2828,6 +3128,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/rbi-reporter:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   rd-service:
     container_name: bankobs-rd-service
     depends_on:
@@ -2879,6 +3184,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/rd-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   redis:
     command:
     - redis-server
@@ -2912,6 +3222,11 @@ services:
       target: /usr/local/etc/redis/redis.conf
       read_only: true
       bind: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   remittance-service:
     container_name: bankobs-remittance-service
     depends_on:
@@ -2963,6 +3278,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/remittance-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   report-generator:
     container_name: bankobs-report-generator
     depends_on:
@@ -3014,6 +3334,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/report-generator:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   risk-scoring:
     container_name: bankobs-risk-scoring
     depends_on:
@@ -3065,6 +3390,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/risk-scoring:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   rtgs-service:
     container_name: bankobs-rtgs-service
     depends_on:
@@ -3116,6 +3446,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/rtgs-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   rules-engine:
     container_name: bankobs-rules-engine
     depends_on:
@@ -3167,6 +3502,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/rules-engine:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   sanctions-service:
     container_name: bankobs-sanctions-service
     depends_on:
@@ -3218,6 +3558,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/sanctions-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   sms-gateway:
     container_name: bankobs-sms-gateway
     depends_on:
@@ -3269,6 +3614,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/sms-gateway:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   statement-service:
     container_name: bankobs-statement-service
     depends_on:
@@ -3320,6 +3670,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/statement-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   tomcat-loan-legacy:
     container_name: bankobs-tomcat-loan-legacy
     depends_on:
@@ -3370,6 +3725,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/tomcat-loan-legacy:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   transaction-monitor:
     container_name: bankobs-transaction-monitor
     depends_on:
@@ -3421,6 +3781,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/transaction-monitor:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   transit-gateway-proxy:
     container_name: bankobs-tgw
     healthcheck:
@@ -3452,6 +3817,11 @@ services:
       target: /usr/local/etc/haproxy/haproxy.cfg
       read_only: true
       bind: {}
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   upi-service:
     container_name: bankobs-upi-service
     depends_on:
@@ -3503,6 +3873,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/upi-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   velocity-checker:
     container_name: bankobs-velocity-checker
     depends_on:
@@ -3554,6 +3929,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/velocity-checker:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   wealth-service:
     container_name: bankobs-wealth-service
     depends_on:
@@ -3605,6 +3985,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/wealth-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   web-portal:
     container_name: bankobs-web-portal
     depends_on:
@@ -3613,6 +3998,7 @@ services:
         required: true
     environment:
       BANKOBS_IN_DOCKER: '1'
+      COOKIE_SECURE: 'false'
       NODE_ENV: production
       PORT: '8200'
     healthcheck:
@@ -3634,6 +4020,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/web-portal:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   weblogic-cbs-simulator:
     container_name: bankobs-weblogic-cbs-simulator
     depends_on:
@@ -3684,6 +4075,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/weblogic-cbs-simulator:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
   whatsapp-service:
     container_name: bankobs-whatsapp-service
     depends_on:
@@ -3735,6 +4131,11 @@ services:
       protocol: tcp
     restart: unless-stopped
     image: public.ecr.aws/w8x4g9h7/obs-v1/whatsapp-service:1.0.0
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: '3'
 networks:
   account1-vpc:
     name: bankobs-account1-vpc
