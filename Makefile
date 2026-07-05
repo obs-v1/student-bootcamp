@@ -77,7 +77,6 @@ up:                  ## Bring up the FULL stack (infra + observability + service
 	@echo "🚀 Starting infra + application services…"
 	@$(COMPOSE) $(COMPOSE_FILES) up -d \
 	  oracle postgres mongodb redis cassandra elasticsearch kafka rabbitmq transit-gateway-proxy \
-	  otel-collector jaeger prometheus grafana loki alertmanager fluent-bit \
 	  $(ALL_APP_SVCS) 2>&1 | grep -vE 'Running|Recreate|Recreated' | tail -25 || true
 	@echo "🌐 Starting web portal…"
 	@$(COMPOSE) $(COMPOSE_FILES) up -d --no-deps web-portal 2>&1 | tail -3 || true
@@ -139,11 +138,11 @@ _wait-portal:
 
 # Cassandra often takes 40-60s to become healthy; tolerate that without failing.
 _wait-cassandra:
-	@for i in 1 2 3 4 5 6 7 8 9 10 11 12; do \
+	@for i in $$(seq 1 36); do \
 	  state=$$(docker inspect --format='{{.State.Health.Status}}' bankobs-cassandra 2>/dev/null || echo missing); \
 	  case "$$state" in \
 	    healthy) echo "✓ Cassandra healthy"; exit 0;; \
-	    starting|unhealthy) printf "  Cassandra: %s (try %d/12)…\r" "$$state" "$$i"; sleep 5;; \
+	    starting|unhealthy) printf "  Cassandra: %s (try %d/36)…\r" "$$state" "$$i"; sleep 5;; \
 	    *) echo "✗ Cassandra not running (status=$$state). Try: make fix-cassandra"; exit 0;; \
 	  esac; \
 	done; \
@@ -377,6 +376,7 @@ seed-cards:          ## Seed 500 credit cards
 	@docker exec bankobs-postgres psql -U bankobs -d bankobs_retail -f /tmp/seed-cards.sql 2>&1 | tail -3
 
 seed-cassandra:      ## Seed Cassandra (VPA registry + UPI history)
+	@$(MAKE) -s _wait-cassandra
 	@for f in 01-init.cql 02-seed.cql; do \
 	  if [ -f infrastructure/databases/cassandra/init-scripts/$$f ]; then \
 	    docker cp infrastructure/databases/cassandra/init-scripts/$$f bankobs-cassandra:/tmp/$$f; \
