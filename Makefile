@@ -74,7 +74,7 @@ up:                  ## Bring up the FULL stack (infra + observability + service
 	@echo "🔐 Starting license-checker…"
 	@$(COMPOSE) $(COMPOSE_FILES) up -d license-checker 2>&1 | tail -3 || true
 	@$(MAKE) -s _wait-license
-	@echo "🚀 Starting infra + observability + services…"
+	@echo "🚀 Starting infra + application services… (observability comes later: make obs-up)"
 	@$(COMPOSE) $(COMPOSE_FILES) up -d \
 	  oracle postgres mongodb redis cassandra elasticsearch kafka rabbitmq transit-gateway-proxy \
 	  otel-collector jaeger prometheus grafana loki alertmanager fluent-bit \
@@ -283,10 +283,7 @@ smoke:               ## End-to-end smoke (login → balance → UPI pay → loan
 
 urls:                ## Print all useful URLs
 	@echo "  🏦  Portal    : $(PORTAL)        (login: $(CUST) / $(PASS))"
-	@echo "  📊  Grafana   : $(GRAFANA)       (admin / admin)"
-	@echo "  🔍  Jaeger    : $(JAEGER)"
-	@echo "  📈  Prometheus: $(PROM)"
-	@echo "  📋  Loki      : $(LOKI)            (use Grafana → Explore)"
+	@echo "  📊  Observability UIs (Grafana, Jaeger, Prometheus, Loki): available after make obs-up"
 
 # ──────────────────────────────────────────────────────────────────────────────
 #  LOGS
@@ -683,9 +680,6 @@ obs-up:              ## Week 1+: start the observability stack (Grafana, Prometh
 	@$(COMPOSE) $(COMPOSE_FILES) --profile observability up -d
 	@echo ""
 	@echo "  📊  Grafana   : http://localhost:13000   (admin / admin)"
-	@echo "  🔍  Jaeger    : http://localhost:16686"
-	@echo "  📈  Prometheus: http://localhost:9090"
-	@echo "  📋  Loki      : http://localhost:3100    (query via Grafana → Explore)"
 
 update:              ## Pull the latest course updates (repo + images) and re-apply
 	@git pull --ff-only
