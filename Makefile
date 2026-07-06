@@ -359,6 +359,12 @@ seed-verify:         ## Check every seed actually landed (Oracle rows, Cassandra
 	if docker exec bankobs-kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list 2>/dev/null | grep -q banking.payments.upi.initiated; \
 	then echo "✓ Kafka: banking topics present"; \
 	else echo "✗ Kafka: topics missing — run: make seed-kafka"; ok=0; fi; \
+	c=$$(docker exec bankobs-postgres psql -U bankobs -d bankobs_retail -tAc "SELECT COUNT(*) FROM credit_cards;" 2>/dev/null); \
+	if [ "$${c:-0}" -gt 0 ] 2>/dev/null; then echo "✓ Postgres: $$c credit cards"; \
+	else echo "✗ Postgres: no credit cards — run: make seed-cards"; ok=0; fi; \
+	w=$$(docker exec bankobs-postgres psql -U bankobs -d bankobs_retail -tAc "SELECT character_maximum_length FROM information_schema.columns WHERE table_name='fixed_deposits' AND column_name='fd_id';" 2>/dev/null); \
+	if [ "$${w:-0}" -ge 40 ] 2>/dev/null; then echo "✓ Postgres: fd_id width $$w (FD/RD creation works)"; \
+	else echo "✗ Postgres: fd_id width $${w:-?} < 40, FD/RD creation will fail — run: make seed-postgres"; ok=0; fi; \
 	[ $$ok -eq 1 ] || { echo "✗ seed incomplete — run the target(s) above, then: make seed-verify"; exit 1; }
 
 seed-kafka:          ## Create all 12 banking Kafka topics (idempotent)
