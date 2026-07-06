@@ -136,6 +136,34 @@ _wait-portal:
 	done; \
 	echo "  ⚠️  portal still not reachable — run 'make health' to diagnose"
 
+# Oracle XE cold-starts in 2-10 min (slower on EC2 gp3); seeding before it is
+# ready fails SILENTLY (sqlplus exits 0 on connect errors) — hence a real probe.
+_wait-oracle:
+	@for i in $$(seq 1 120); do \
+	  state=$$(docker inspect --format='{{.State.Health.Status}}' bankobs-oracle 2>/dev/null || echo missing); \
+	  if [ "$$state" = "healthy" ]; then \
+	    docker exec bankobs-oracle bash -c 'echo "SELECT 1 FROM dual;" | sqlplus -s "sys/Training123!@//localhost:1521/XEPDB1" as sysdba' 2>/dev/null \
+	      | grep -qE '^[[:space:]]*1$$' && { echo "✓ Oracle ready"; exit 0; }; \
+	  fi; \
+	  printf "  Oracle: %s (try %d/120)…\r" "$$state" "$$i"; sleep 5; \
+	done; \
+	echo ""; echo "✗ Oracle not ready after 10 min — check: docker logs bankobs-oracle"; exit 1
+
+_wait-postgres:
+	@for i in $$(seq 1 36); do \
+	  docker exec bankobs-postgres pg_isready -U bankobs >/dev/null 2>&1 && { echo "✓ Postgres ready"; exit 0; }; \
+	  printf "  Postgres: waiting (try %d/36)…\r" "$$i"; sleep 5; \
+	done; \
+	echo ""; echo "✗ Postgres not ready — check: docker logs bankobs-postgres"; exit 1
+
+_wait-kafka:
+	@for i in $$(seq 1 36); do \
+	  state=$$(docker inspect --format='{{.State.Health.Status}}' bankobs-kafka 2>/dev/null || echo missing); \
+	  [ "$$state" = "healthy" ] && { echo "✓ Kafka healthy"; exit 0; }; \
+	  printf "  Kafka: %s (try %d/36)…\r" "$$state" "$$i"; sleep 5; \
+	done; \
+	echo ""; echo "✗ Kafka not healthy — check: docker logs bankobs-kafka"; exit 1
+
 # Cassandra often takes 40-60s to become healthy; tolerate that without failing.
 _wait-cassandra:
 	@for i in $$(seq 1 36); do \
@@ -309,7 +337,7 @@ logs-tail:           ## Last 50 lines from a service (no follow):  make logs-tai
 #  SEEDING
 # ──────────────────────────────────────────────────────────────────────────────
 
-.PHONY: seed seed-oracle seed-postgres seed-cards seed-cassandra seed-kafka
+.PHONY: seed seed-oracle seed-postgres seed-cards seed-cassandra seed-kafka seed-verify _wait-oracle _wait-postgres _wait-kafka
 
 seed:                ## Seed everything (Oracle + Postgres + Cassandra + Kafka topics)
 	@$(MAKE) seed-oracle
@@ -317,9 +345,24 @@ seed:                ## Seed everything (Oracle + Postgres + Cassandra + Kafka t
 	@$(MAKE) seed-cards
 	@$(MAKE) seed-cassandra
 	@$(MAKE) seed-kafka
-	@echo "✓ all seeds done"
+	@$(MAKE) -s seed-verify
+	@echo "✓ all seeds done and verified"
+
+seed-verify:         ## Check every seed actually landed (Oracle rows, Cassandra keyspace, Kafka topics)
+	@ok=1; \
+	n=$$(docker exec bankobs-oracle bash -c 'echo "SELECT COUNT(*) FROM accounts;" | sqlplus -s "BANKOBS_CORE/Training123!@//localhost:1521/XEPDB1"' 2>/dev/null | grep -oE '[0-9]+' | tail -1); \
+	if [ "$${n:-0}" -gt 0 ] 2>/dev/null; then echo "✓ Oracle: $$n accounts"; \
+	else echo "✗ Oracle: no accounts — run: make seed-oracle"; ok=0; fi; \
+	if docker exec bankobs-cassandra cqlsh -e 'DESCRIBE KEYSPACES' 2>/dev/null | grep -q bankobs_payments; \
+	then echo "✓ Cassandra: keyspace bankobs_payments present"; \
+	else echo "✗ Cassandra: keyspace missing — run: make seed-cassandra"; ok=0; fi; \
+	if docker exec bankobs-kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list 2>/dev/null | grep -q banking.payments.upi.initiated; \
+	then echo "✓ Kafka: banking topics present"; \
+	else echo "✗ Kafka: topics missing — run: make seed-kafka"; ok=0; fi; \
+	[ $$ok -eq 1 ] || { echo "✗ seed incomplete — run the target(s) above, then: make seed-verify"; exit 1; }
 
 seed-kafka:          ## Create all 12 banking Kafka topics (idempotent)
+	@$(MAKE) -s _wait-kafka
 	@docker exec bankobs-kafka bash -c 'cd /opt/kafka/bin && \
 	  for t in banking.payments.upi.initiated banking.payments.upi.completed \
 	           banking.payments.neft.batch banking.payments.rtgs.initiated \
@@ -336,6 +379,7 @@ seed-kafka:          ## Create all 12 banking Kafka topics (idempotent)
 	@echo "✓ Kafka topics ready"
 
 seed-oracle:         ## Seed Oracle XE — schema + accounts + transactions
+	@$(MAKE) -s _wait-oracle
 	@echo "→ copying init scripts into Oracle container…"
 	@for f in 01-schema.sql 02-seed.sql 03-seed-txns.sql; do \
 	  docker cp infrastructure/databases/oracle/init-scripts/$$f bankobs-oracle:/tmp/$$f; \
@@ -352,11 +396,13 @@ seed-oracle:         ## Seed Oracle XE — schema + accounts + transactions
 	@$(MAKE) -s restart-account restart-ledger >/dev/null
 
 seed-postgres:       ## Bump fd/rd column widths (run after a fresh reset)
+	@$(MAKE) -s _wait-postgres
 	@docker exec bankobs-postgres psql -U bankobs -d bankobs_retail -c \
 	  "ALTER TABLE fixed_deposits     ALTER COLUMN fd_id TYPE VARCHAR(40); \
 	   ALTER TABLE recurring_deposits ALTER COLUMN rd_id TYPE VARCHAR(40);" 2>&1 | tail -5
 
 seed-cards:          ## Seed 500 credit cards
+	@$(MAKE) -s _wait-postgres
 	@printf "INSERT INTO credit_cards (card_id, customer_id, card_number_masked, credit_limit, current_balance, status)\nSELECT 'CC-CUST' || lpad(g::text, 3, '0') || '-0001', 'CUST-' || lpad(g::text, 8, '0'), 'XXXX XXXX XXXX ' || lpad((1000 + g)::text, 4, '0'), (CASE WHEN g %% 5 = 0 THEN 500000 WHEN g %% 3 = 0 THEN 300000 WHEN g %% 2 = 0 THEN 150000 ELSE 75000 END)::numeric, ((g %% 11) * 5000)::numeric, CASE WHEN g %% 50 = 0 THEN 'BLOCKED' ELSE 'ACTIVE' END FROM generate_series(1, 500) g ON CONFLICT (card_id) DO NOTHING;\n" > /tmp/seed-cards.sql
 	@docker cp /tmp/seed-cards.sql bankobs-postgres:/tmp/seed-cards.sql
 	@docker exec bankobs-postgres psql -U bankobs -d bankobs_retail -f /tmp/seed-cards.sql 2>&1 | tail -3

@@ -5,21 +5,12 @@ All images are PUBLIC at public.ecr.aws/w8x4g9h7/obs-v1/* — nothing to build, 
 
 ## Quick start (local — docker-compose)
 
-Copy config file
-
 ```bash
 cp .env.example .env
-```
-
-### paste the license you receive into .env as LICENSE_KEY=...
-```
-LICENSE_KEY=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjb2hvcnRAYmFua29ic2VydmUzNjAudHJhaW5pbmciLCJodyI6IioiLCJ0aWVyIjoic3R1ZGVudCIsImZlYXR1cmVzIjpbImFsbCJdLCJqdGkiOiI0NDY4OTRhNS00NDg5LTQ5ZDctOGE2Mi0zM2FkYTYxY2MwNjMiLCJpc3MiOiJiYW5rb2JzZXJ2ZTM2MCIsImV4cCI6MTc5ODgwMzM0MSwiaWF0IjoxNzgzMjUxMzQxfQ.RuC_RlHu6yHRrLglVd_ExZynHq1Lb9nlYruoyFfEO5Hk1uU7PU9z5b_F9F7nzW3Hj3MHVJMj5MhGOjYYZWeiAQ
-```
-
-## Run the following commands
-
-```bash
+make fingerprint            # send the fingerprint to your trainer
+# paste the license you receive into .env as LICENSE_KEY=...
 make compose-up             # bring up the BANKING APPLICATION (first run pulls images)
+                            # note: no observability tools yet — that's Week 1 (make obs-up)
 make seed                   # load banking data (accounts, transactions, topics)
 make smoke                  # balance → UPI payment → loan application, end-to-end
 make urls                   # every UI and where to find it
