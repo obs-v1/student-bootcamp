@@ -14,3 +14,16 @@ INSERT INTO vpa_registry (vpa, customer_id, linked_account, status, created_at) 
 INSERT INTO vpa_registry (vpa, customer_id, linked_account, status, created_at) VALUES ('demo@okicici',        'CUST-00000102', 'ACC000000000102', 'ACTIVE', toTimestamp(now()));
 INSERT INTO vpa_registry (vpa, customer_id, linked_account, status, created_at) VALUES ('demo@oksbi',          'CUST-00000103', 'ACC000000000103', 'ACTIVE', toTimestamp(now()));
 INSERT INTO vpa_registry (vpa, customer_id, linked_account, status, created_at) VALUES ('test@bankobs',        'CUST-00000999', 'ACC000000000999', 'ACTIVE', toTimestamp(now()));
+
+-- Every VPA the web-portal pay page displays must resolve to a real Oracle
+-- account, or the credit leg 404s (ERR_CREDIT). Contacts from PayClient.tsx:
+INSERT INTO vpa_registry (vpa, customer_id, linked_account, status, created_at) VALUES ('priya.s@okhdfc',      'CUST-00000201', 'ACC000000000201', 'ACTIVE', toTimestamp(now()));
+INSERT INTO vpa_registry (vpa, customer_id, linked_account, status, created_at) VALUES ('amitp@okicici',       'CUST-00000202', 'ACC000000000202', 'ACTIVE', toTimestamp(now()));
+INSERT INTO vpa_registry (vpa, customer_id, linked_account, status, created_at) VALUES ('sneha@oksbi',         'CUST-00000203', 'ACC000000000203', 'ACTIVE', toTimestamp(now()));
+INSERT INTO vpa_registry (vpa, customer_id, linked_account, status, created_at) VALUES ('mom@oksbi',           'CUST-00000204', 'ACC000000000204', 'ACTIVE', toTimestamp(now()));
+INSERT INTO vpa_registry (vpa, customer_id, linked_account, status, created_at) VALUES ('rohit.g@okaxis',      'CUST-00000205', 'ACC000000000205', 'ACTIVE', toTimestamp(now()));
+-- Merchant tiles:
+INSERT INTO vpa_registry (vpa, customer_id, linked_account, status, created_at) VALUES ('zomato@hdfcbank',     'CUST-00000301', 'ACC000000000301', 'ACTIVE', toTimestamp(now()));
+INSERT INTO vpa_registry (vpa, customer_id, linked_account, status, created_at) VALUES ('amazon@apl',          'CUST-00000302', 'ACC000000000302', 'ACTIVE', toTimestamp(now()));
+INSERT INTO vpa_registry (vpa, customer_id, linked_account, status, created_at) VALUES ('spotify@hdfcbank',    'CUST-00000303', 'ACC000000000303', 'ACTIVE', toTimestamp(now()));
+INSERT INTO vpa_registry (vpa, customer_id, linked_account, status, created_at) VALUES ('bses@hdfcbank',       'CUST-00000304', 'ACC000000000304', 'ACTIVE', toTimestamp(now()));
