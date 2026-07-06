@@ -5,9 +5,10 @@ All images are PUBLIC at public.ecr.aws/w8x4g9h7/obs-v1/* — nothing to build, 
 
 ## Quick start (local — docker-compose)
 
+Copy config file
+
 ```bash
 cp .env.example .env
-make fingerprint            # send the fingerprint to your trainer
 ```
 
 ### paste the license you receive into .env as LICENSE_KEY=...
