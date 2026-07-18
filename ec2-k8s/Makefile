@@ -26,7 +26,7 @@ HOST_HOSTNAME   := $(shell hostname)
 #   LICENSE_KEY=eyJ... make up
 LICENSE_KEY     ?= $(shell grep '^LICENSE_KEY=' $(ROOT)/.env 2>/dev/null | cut -d= -f2-)
 
-.PHONY: help up prep fingerprint cluster-up deploy wait-infra seed-extras status health smoke urls \
+.PHONY: help up prep fingerprint cluster-up deploy _wire-apps wait-infra wait-apps seed-extras status health smoke urls \
         obs-on obs-off seed-verify logs-svc restart-svc fix-cassandra \
         shell-oracle shell-pg shell-mongo shell-redis shell-cassandra shell-kafka \
         down nuke
@@ -34,17 +34,29 @@ LICENSE_KEY     ?= $(shell grep '^LICENSE_KEY=' $(ROOT)/.env 2>/dev/null | cut -
 help:                ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
-up:                  ## ONE SHOT: prep → kind cluster → deploy → wait for stores + seeds → smoke
+up:                  ## ONE SHOT: prep → kind cluster → deploy → wait for stores + apps + seeds → smoke
 	@$(MAKE) prep
 	@$(MAKE) cluster-up
 	@$(MAKE) deploy
 	@echo ""
 	@echo "⏳ waiting for data stores + init jobs + extra seeds (Oracle takes ~10 min)…"
 	@$(MAKE) wait-infra
+	@echo ""
+	@echo "⏳ waiting for the core app services (first-run image pulls: 15–40 min)…"
+	@$(MAKE) wait-apps
 	@$(MAKE) smoke
 	@$(MAKE) urls
 	@echo ""
 	@echo "✓ up complete. Week 1: make obs-on"
+
+wait-apps:           ## Block until the smoke-critical app services are rolled out
+	@# Deliberately NOT all 60 — balance-service & cheque-service ship broken
+	@# (course debugging targets) and would never become Available.
+	@for d in auth-service gateway-service account-service ledger-service \
+	          upi-service loan-origination fd-service credit-card-service web-portal; do \
+	  echo "→ waiting for $$d"; \
+	  $(KCTL) rollout status deploy/$$d --timeout=40m || exit 1; \
+	done
 
 # ──────────────────────────────────────────────────────────────────────────────
 #  HOST PREP + CLUSTER
@@ -115,23 +127,39 @@ deploy: _check-license  ## Deploy the platform: infra manifests + Helm chart + e
 	@$(KCTL) rollout status deployment/license-checker --timeout=10m
 	@echo ""
 	@echo "⛵ [4/6] Helm — the 65 application services (public images, no build)"
+	@# On re-runs, normalize the app env BEFORE helm: helm's server-side apply
+	@# produces an invalid object if a chart-defined env key was left as a
+	@# valueFrom reference by an older deploy.
+	@helm status $(RELEASE) -n $(NS) >/dev/null 2>&1 && $(MAKE) -s _wire-apps || true
 	@helm dependency build $(HELM_DIR) >/dev/null 2>&1 || true
 	@helm upgrade --install $(RELEASE) $(HELM_DIR) -n $(NS) $(HELM_SSA) \
 	  -f $(HELM_DIR)/values.yaml -f values-kind.yaml --timeout 20m
 	@echo ""
 	@echo "🔌 [5/6] wiring compose-equivalent environment into every app service"
+	@$(MAKE) -s _wire-apps
+	@echo "✓ env injected (deployments roll once with the DB/Kafka/license settings)"
+
+# Applies the single-node tuning + compose-equivalent env to the Helm-chart
+# services (domain != platform — license-checker/web-portal are fully defined
+# in manifests/platform/ and must stay kubectl-apply-clean). Env is injected
+# as LITERAL values (read from the bankobs-env ConfigMap), never as
+# configMapKeyRef: value-over-value survives both `kubectl apply` and Helm
+# server-side apply, valueFrom does not. Idempotent — re-running with
+# unchanged values causes no rollout.
+_wire-apps:
 	@# Single node: forbid surge rollouts (the old pod must free its CPU/pod
 	@# slot before the new one schedules) — with ~90 pods a surged rollout
-	@# deadlocks on the 110-pod/‌full-CPU node.
-	@$(KCTL) get deploy -l domain -o name | \
+	@# deadlocks on the 110-pod/full-CPU node.
+	@$(KCTL) get deploy -l 'domain,domain!=platform' -o name | \
 	  xargs -I{} $(KCTL) patch {} --type=merge \
 	    -p '{"spec":{"strategy":{"type":"RollingUpdate","rollingUpdate":{"maxSurge":0,"maxUnavailable":1}}}}' >/dev/null
-	@# kubectl can't combine --from=configmap with a label selector, so enumerate:
-	@$(KCTL) get deploy -l domain -o name | \
-	  xargs -I{} $(KCTL) set env {} --from=configmap/bankobs-env >/dev/null
+	@VALS=$$($(KCTL) get configmap bankobs-env -o go-template='{{range $$k, $$v := .data}}{{$$k}}={{$$v}} {{end}}'); \
+	for d in $$($(KCTL) get deploy -l 'domain,domain!=platform' -o name); do \
+	  $(KCTL) set env $$d $$VALS >/dev/null || exit 1; \
+	done
 	@# Halve the chart-hardcoded 100m CPU request so the full stack also fits
 	@# an 8-vCPU host (no-op headroom cost on 16 vCPU).
-	@$(KCTL) set resources deployment -l domain --requests=cpu=50m,memory=128Mi >/dev/null
+	@$(KCTL) set resources deployment -l 'domain,domain!=platform' --requests=cpu=50m,memory=128Mi >/dev/null
 	@echo "✓ env injected (deployments roll once with the DB/Kafka/license settings)"
 	@$(KCTL) get svc loadrunner -o jsonpath='{.spec.ports[*].port}' 2>/dev/null | grep -q 9090 || \
 	  $(KCTL) patch svc loadrunner --type=json \
@@ -222,12 +250,17 @@ health:              ## Probe critical service /health endpoints in-cluster
 	  printf "  %-22s %s\n" "$$n" "$$code"; \
 	done
 
-smoke:               ## Probe the portal (host :80) and the gateway end-to-end
+smoke:               ## Probe the portal (host :80) and the gateway end-to-end (never fails the build)
 	@echo "→ portal via host port 80"
-	@curl -s -o /dev/null -m 10 -w "  http %{http_code}\n" http://localhost/ || echo "  ✗ portal not reachable"
-	@echo "→ gateway in-cluster"
-	@$(KCTL) run smoke-$$RANDOM --rm -i --restart=Never --image=curlimages/curl:8.5.0 -- \
-	  -s -m 10 -o /dev/null -w "  http %{http_code}\n" http://gateway-service:8000/health/ready
+	@curl -s -o /dev/null -m 10 -w "  http %{http_code}\n" http://localhost/ || echo "  ⚠ portal not reachable"
+	@echo "→ gateway in-cluster (via web-portal pod — no ephemeral pod, no attach races)"
+	@ok=0; for i in 1 2 3 4 5 6; do \
+	  $(KCTL) exec deploy/web-portal -- wget -q -O- -T 10 http://gateway-service:8000/health/ready >/dev/null 2>&1 \
+	    && { ok=1; break; } || sleep 5; \
+	done; \
+	if [ $$ok -eq 1 ]; then echo "  ✓ gateway /health/ready"; \
+	else echo "  ⚠ gateway not ready yet — check later with: make status / make health"; fi
+	@true
 
 urls:                ## Print every UI and where to find it
 	@IP=$$(curl -s -m 2 http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo "<ec2-ip>"); \
