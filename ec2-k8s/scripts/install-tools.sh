@@ -6,7 +6,7 @@
 set -euo pipefail
 
 export PATH="/usr/local/bin:$PATH"
-KIND_VERSION="v0.23.0"
+KIND_VERSION="v0.32.0"
 ARCH="$(uname -m)"
 [ "${ARCH}" = "x86_64" ] || { echo "✗ x86_64 required (images are amd64), got ${ARCH}"; exit 1; }
 

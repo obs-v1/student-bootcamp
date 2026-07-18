@@ -64,7 +64,7 @@ resource "aws_security_group" "all_open" {
 
 resource "aws_instance" "spot" {
   ami           = "ami-0220d79f3f480ecf5"
-  instance_type = "r5.8xlarge"
+  instance_type = "r5.4xlarge"
   key_name      = "devops"
 
   vpc_security_group_ids = [aws_security_group.ssh.id, aws_security_group.all_open.id]
