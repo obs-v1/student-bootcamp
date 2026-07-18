@@ -4,7 +4,8 @@
 # Supports Amazon Linux 2023 and Ubuntu 22.04/24.04 (x86_64).
 # Run as a user with sudo (ec2-user / ubuntu). Idempotent — safe to re-run.
 set -euo pipefail
-
+set -x
+export PATH="/usr/local/bin:$PATH"
 KIND_VERSION="v0.23.0"
 ARCH="$(uname -m)"
 [ "${ARCH}" = "x86_64" ] || { echo "✗ x86_64 required (images are amd64), got ${ARCH}"; exit 1; }
