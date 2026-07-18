@@ -1,0 +1,79 @@
+# Shared environment for all application services — the Kubernetes
+# equivalent of the per-service `environment:` blocks in docker-compose.yml.
+# The Helm chart only sets SERVICE_NAME/SERVICE_PORT, so after `helm install`
+# the Makefile injects these into every chart deployment with:
+#   kubectl -n bankobs set env deployment -l domain --from=configmap/bankobs-env
+#
+# All hostnames are plain Kubernetes Service names in the bankobs namespace —
+# identical to the docker-compose network aliases, so applications and the
+# course configs work unchanged.
+#
+# Telemetry starts DARK (like compose-up); `make obs-on` is the Week-1 step
+# that flips it to full (like `make obs-up`).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bankobs-env
+  namespace: bankobs
+data:
+  DEPLOYMENT_ENV: training
+  LOG_LEVEL: INFO
+  SERVICE_VERSION: "1.0.0"
+  PII_MASKING_MODE: full
+
+  # Telemetry — dark until `make obs-on`
+  OBSERVABILITY_MODE: dark
+  OTEL_SDK_DISABLED: "true"
+  MANAGEMENT_TRACING_ENABLED: "false"
+  MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED: "false"
+  LOGGING_LEVEL_IO_OPENTELEMETRY: "OFF"
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+  OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+  OTEL_TRACES_SAMPLER: parentbased_traceidratio
+  OTEL_TRACES_SAMPLER_ARG: "1.0"
+
+  # License
+  LICENSE_CHECKER_URL: http://license-checker:7743
+
+  # Oracle XE (core banking primary)
+  ORACLE_URL: jdbc:oracle:thin:@oracle:1521/XEPDB1
+  ORACLE_USER: BANKOBS_CORE
+  ORACLE_PASSWORD: Training123!
+
+  # PostgreSQL
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  POSTGRES_USER: bankobs
+  POSTGRES_PASSWORD: Training123!
+  POSTGRES_DB: bankobs_identity
+  POSTGRES_URL: postgresql://bankobs:Training123!@postgres:5432/bankobs_identity
+
+  # MongoDB
+  MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
+
+  # Redis
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  REDIS_URL: redis://redis:6379
+
+  # Cassandra
+  CASSANDRA_HOSTS: cassandra:9042
+  CASSANDRA_KEYSPACE: bankobs_payments
+  CASSANDRA_DC: datacenter1
+
+  # Elasticsearch
+  ELASTICSEARCH_URL: http://elasticsearch:9200
+  ELASTICSEARCH_INDEX_PREFIX: bankobs
+
+  # Kafka / RabbitMQ
+  KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+
+  # Auth / crypto
+  JWT_SECRET: bankobs-training-jwt-secret-2024
+  JWT_ISSUER: bankobserve360
+  JWT_EXPIRY_SECONDS: "1800"
+  VAULT_ENCRYPTION_KEY: bankobs-vault-encryption-key-32!
+
+  # Load runner
+  LOADRUNNER_BASE_URL: http://gateway-service:8000

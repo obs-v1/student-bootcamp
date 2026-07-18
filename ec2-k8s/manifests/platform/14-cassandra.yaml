@@ -1,0 +1,66 @@
+# Cassandra 4.1 — UPI transactions.
+# The keyspace + seed data are loaded by the cassandra-init Job
+# (see 50-init-jobs.yaml) — the image has no initdb hook of its own.
+apiVersion: v1
+kind: Service
+metadata:
+  name: cassandra
+  namespace: bankobs
+  labels: { app: cassandra, tier: data }
+spec:
+  selector: { app: cassandra }
+  ports:
+    - { name: cql, port: 9042, targetPort: 9042 }
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cassandra
+  namespace: bankobs
+  labels: { app: cassandra, tier: data }
+spec:
+  serviceName: cassandra
+  replicas: 1
+  selector: { matchLabels: { app: cassandra } }
+  template:
+    metadata:
+      labels: { app: cassandra, tier: data }
+    spec:
+      containers:
+        - name: cassandra
+          image: cassandra:4.1
+          ports: [{ containerPort: 9042 }]
+          env:
+            - { name: CASSANDRA_CLUSTER_NAME, value: bankobs-payments }
+            - { name: CASSANDRA_DC, value: datacenter1 }
+            - { name: CASSANDRA_RACK, value: rack1 }
+            - { name: CASSANDRA_ENDPOINT_SNITCH, value: GossipingPropertyFileSnitch }
+            - { name: MAX_HEAP_SIZE, value: 1G }
+            - { name: HEAP_NEWSIZE, value: 256M }
+          startupProbe:
+            exec:
+              command: [bash, -c, "nodetool status | grep -E '^UN' || exit 1"]
+            periodSeconds: 15
+            failureThreshold: 40
+          readinessProbe:
+            exec:
+              command: [bash, -c, "nodetool status | grep -E '^UN' || exit 1"]
+            periodSeconds: 15
+            timeoutSeconds: 10
+          livenessProbe:
+            exec:
+              command: [bash, -c, "nodetool status | grep -E '^UN' || exit 1"]
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+          resources:
+            requests: { cpu: 500m, memory: 1Gi }
+            limits: { cpu: "2", memory: 2Gi }
+          volumeMounts:
+            - { name: data, mountPath: /var/lib/cassandra }
+  volumeClaimTemplates:
+    - metadata: { name: data }
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: standard
+        resources: { requests: { storage: 10Gi } }

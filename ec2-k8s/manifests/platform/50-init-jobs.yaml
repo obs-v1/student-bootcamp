@@ -1,0 +1,96 @@
+# One-shot init Jobs — Kubernetes versions of the compose *-init services.
+# Each script self-waits for its backend, so the Jobs can be applied together
+# with everything else. The Makefile deletes completed Jobs before re-apply
+# (Job specs are immutable). Scripts come from ConfigMaps created out of
+# ../infrastructure/ by the Makefile.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cassandra-init
+  namespace: bankobs
+  labels: { app: cassandra-init, part-of: bankobs-init }
+spec:
+  backoffLimit: 10
+  template:
+    metadata:
+      labels: { app: cassandra-init, part-of: bankobs-init }
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: cassandra-init
+          image: cassandra:4.1
+          command:
+            - bash
+            - -c
+            - >
+              until cqlsh cassandra -e 'describe keyspaces' >/dev/null 2>&1;
+              do echo waiting; sleep 5; done;
+              for f in /init/*.cql; do echo "running $f"; cqlsh cassandra -f "$f"; done;
+              echo done
+          volumeMounts:
+            - { name: init, mountPath: /init, readOnly: true }
+          resources:
+            requests: { cpu: 50m, memory: 256Mi }
+            limits: { cpu: 500m, memory: 512Mi }
+      volumes:
+        - name: init
+          configMap: { name: cassandra-init-scripts }
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: elasticsearch-init
+  namespace: bankobs
+  labels: { app: elasticsearch-init, part-of: bankobs-init }
+spec:
+  backoffLimit: 10
+  template:
+    metadata:
+      labels: { app: elasticsearch-init, part-of: bankobs-init }
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: elasticsearch-init
+          image: curlimages/curl:8.5.0
+          command: [/bin/sh, -c, "sh /init/01-init.sh"]
+          env:
+            - { name: ELASTICSEARCH_URL, value: "http://elasticsearch:9200" }
+          volumeMounts:
+            - { name: init, mountPath: /init, readOnly: true }
+          resources:
+            requests: { cpu: 25m, memory: 32Mi }
+            limits: { cpu: 250m, memory: 128Mi }
+      volumes:
+        - name: init
+          configMap: { name: es-init-scripts }
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kafka-init
+  namespace: bankobs
+  labels: { app: kafka-init, part-of: bankobs-init }
+spec:
+  backoffLimit: 10
+  template:
+    metadata:
+      labels: { app: kafka-init, part-of: bankobs-init }
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: kafka-init
+          image: apache/kafka:3.7.0
+          command: [bash, /init/topics.sh]
+          env:
+            - { name: KAFKA_BOOTSTRAP_SERVERS, value: "kafka:9092" }
+            - { name: KAFKA_REPLICATION_FACTOR, value: "1" }
+            - name: PATH
+              value: /opt/kafka/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+          volumeMounts:
+            - { name: init, mountPath: /init, readOnly: true }
+          resources:
+            requests: { cpu: 50m, memory: 256Mi }
+            limits: { cpu: 500m, memory: 512Mi }
+      volumes:
+        - name: init
+          configMap: { name: kafka-init-scripts }

@@ -1,0 +1,53 @@
+# web-portal — the BankObserve360 UI.
+# NodePort 30080 is published as port 80 on the EC2 host by
+# kind-config.yaml, so the portal is at http://<ec2-ip>/ just like compose.
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-portal
+  namespace: bankobs
+  labels: { app: web-portal, domain: platform }
+spec:
+  type: NodePort
+  selector: { app: web-portal }
+  ports:
+    - { name: http, port: 8200, targetPort: 8200, nodePort: 30080 }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-portal
+  namespace: bankobs
+  labels: { app: web-portal, domain: platform }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: web-portal } }
+  template:
+    metadata:
+      labels: { app: web-portal, domain: platform }
+    spec:
+      containers:
+        - name: web-portal
+          image: public.ecr.aws/w8x4g9h7/obs-v1/web-portal:1.0.0
+          ports: [{ containerPort: 8200 }]
+          env:
+            - { name: NODE_ENV, value: production }
+            - { name: PORT, value: "8200" }
+            - { name: BANKOBS_IN_DOCKER, value: "1" }
+            - { name: COOKIE_SECURE, value: "false" }
+            - { name: OBSERVABILITY_MODE, value: dark }
+            - { name: OTEL_SDK_DISABLED, value: "true" }
+            - { name: MANAGEMENT_TRACING_ENABLED, value: "false" }
+            - { name: MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED, value: "false" }
+            - { name: LOGGING_LEVEL_IO_OPENTELEMETRY, value: "OFF" }
+          readinessProbe:
+            httpGet: { path: /, port: 8200 }
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          livenessProbe:
+            httpGet: { path: /, port: 8200 }
+            initialDelaySeconds: 45
+            periodSeconds: 30
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { cpu: 500m, memory: 256Mi }

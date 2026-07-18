@@ -1,0 +1,69 @@
+# Grafana — provisioned with the course datasources + all 13 dashboards
+# (ConfigMaps built from config/grafana/ by `make obs-on`).
+# Exposed on the EC2 host at :13000 via NodePort 31300, same port as compose.
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: bankobs
+  labels: { app: grafana, tier: observability }
+spec:
+  type: NodePort
+  selector: { app: grafana }
+  ports:
+    - { name: http, port: 3000, targetPort: 3000, nodePort: 31300 }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: bankobs
+  labels: { app: grafana, tier: observability }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: grafana } }
+  template:
+    metadata:
+      labels: { app: grafana, tier: observability }
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:10.3.1
+          ports: [{ containerPort: 3000 }]
+          env:
+            - { name: GF_SECURITY_ADMIN_USER, value: admin }
+            - { name: GF_SECURITY_ADMIN_PASSWORD, value: admin }
+            - { name: GF_USERS_ALLOW_SIGN_UP, value: "false" }
+            - { name: GF_AUTH_ANONYMOUS_ENABLED, value: "true" }
+            - { name: GF_AUTH_ANONYMOUS_ORG_ROLE, value: Viewer }
+          readinessProbe:
+            httpGet: { path: /api/health, port: 3000 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /api/health, port: 3000 }
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { cpu: "1", memory: 512Mi }
+          volumeMounts:
+            - { name: storage, mountPath: /var/lib/grafana }
+            - name: datasources
+              mountPath: /etc/grafana/provisioning/datasources
+              readOnly: true
+            - name: dashboard-provider
+              mountPath: /etc/grafana/provisioning/dashboards
+              readOnly: true
+            - name: dashboards
+              mountPath: /var/lib/grafana/dashboards
+              readOnly: true
+      volumes:
+        - name: storage
+          emptyDir: {}
+        - name: datasources
+          configMap: { name: grafana-datasources }
+        - name: dashboard-provider
+          configMap: { name: grafana-dashboard-provider }
+        - name: dashboards
+          configMap: { name: grafana-dashboards }

@@ -1,0 +1,60 @@
+# PostgreSQL — identity + retail + license portal.
+# Init scripts come from the `postgres-init` ConfigMap, created by the
+# Makefile from ../infrastructure/databases/postgres/init-scripts/.
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: bankobs
+  labels: { app: postgres, tier: data }
+spec:
+  selector: { app: postgres }
+  ports:
+    - { name: pg, port: 5432, targetPort: 5432 }
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: bankobs
+  labels: { app: postgres, tier: data }
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector: { matchLabels: { app: postgres } }
+  template:
+    metadata:
+      labels: { app: postgres, tier: data }
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          ports: [{ containerPort: 5432 }]
+          env:
+            - { name: POSTGRES_DB, value: bankobs_identity }
+            - { name: POSTGRES_USER, value: bankobs }
+            - { name: POSTGRES_PASSWORD, value: Training123! }
+            - { name: PGDATA, value: /var/lib/postgresql/data/pgdata }
+          readinessProbe:
+            exec: { command: [pg_isready, -U, bankobs, -d, bankobs_identity] }
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec: { command: [pg_isready, -U, bankobs, -d, bankobs_identity] }
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { cpu: "1", memory: 512Mi }
+          volumeMounts:
+            - { name: data, mountPath: /var/lib/postgresql/data }
+            - { name: init, mountPath: /docker-entrypoint-initdb.d, readOnly: true }
+      volumes:
+        - name: init
+          configMap: { name: postgres-init }
+  volumeClaimTemplates:
+    - metadata: { name: data }
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: standard
+        resources: { requests: { storage: 5Gi } }

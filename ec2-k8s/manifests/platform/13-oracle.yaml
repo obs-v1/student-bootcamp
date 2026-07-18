@@ -1,0 +1,67 @@
+# Oracle XE 21 — core banking primary.
+# First boot creates XEPDB1 + the BANKOBS_CORE user and runs the schema/seed
+# scripts from the `oracle-init` ConfigMap; expect 5–10 minutes before Ready.
+apiVersion: v1
+kind: Service
+metadata:
+  name: oracle
+  namespace: bankobs
+  labels: { app: oracle, tier: data }
+spec:
+  selector: { app: oracle }
+  ports:
+    - { name: tns, port: 1521, targetPort: 1521 }
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: oracle
+  namespace: bankobs
+  labels: { app: oracle, tier: data }
+spec:
+  serviceName: oracle
+  replicas: 1
+  selector: { matchLabels: { app: oracle } }
+  template:
+    metadata:
+      labels: { app: oracle, tier: data }
+    spec:
+      containers:
+        - name: oracle
+          image: gvenzl/oracle-xe:21-slim
+          ports: [{ containerPort: 1521 }]
+          env:
+            - { name: ORACLE_PASSWORD, value: Training123! }
+            - { name: ORACLE_DATABASE, value: XEPDB1 }
+            - { name: APP_USER, value: BANKOBS_CORE }
+            - { name: APP_USER_PASSWORD, value: Training123! }
+          # First boot (datafile creation + init scripts) is slow — give the
+          # startup probe up to 20 minutes before liveness takes over.
+          startupProbe:
+            exec: { command: [healthcheck.sh] }
+            periodSeconds: 10
+            failureThreshold: 120
+          readinessProbe:
+            exec: { command: [healthcheck.sh] }
+            periodSeconds: 30
+            timeoutSeconds: 10
+          livenessProbe:
+            exec: { command: [healthcheck.sh] }
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+          resources:
+            requests: { cpu: 500m, memory: 1Gi }
+            limits: { cpu: "2", memory: 2Gi }
+          volumeMounts:
+            - { name: data, mountPath: /opt/oracle/oradata }
+            - { name: init, mountPath: /container-entrypoint-initdb.d, readOnly: true }
+      volumes:
+        - name: init
+          configMap: { name: oracle-init }
+  volumeClaimTemplates:
+    - metadata: { name: data }
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: standard
+        resources: { requests: { storage: 20Gi } }

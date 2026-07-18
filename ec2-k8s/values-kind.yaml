@@ -1,0 +1,28 @@
+# values-kind.yaml — overrides for the kind-on-EC2 deployment.
+# Layered on top of the chart's values.yaml:
+#   helm upgrade --install bankobs ../helm/bankobserve360 \
+#     -f ../helm/bankobserve360/values.yaml -f values-kind.yaml
+global:
+  # All images are public — same registry the compose file uses.
+  registry: public.ecr.aws/w8x4g9h7/obs-v1
+  imageTag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+  observability:
+    mode: full
+
+  # kind ships the rancher.io/local-path provisioner as the default
+  # StorageClass, named "standard".
+  storageClass: standard
+
+# The chart's observability-stack sub-chart deploys Grafana/Prometheus/Loki/
+# Jaeger/otel-collector WITHOUT any of the course configuration (dashboards,
+# datasources, scrape targets, alert rules). We disable it and deploy the
+# same components from ec2-k8s/manifests/observability/ instead, mounting the
+# real configs from this repo's config/ directory.
+observability-stack: { enabled: false }
+
+# On a smaller instance (m5.2xlarge) you can free capacity by disabling
+# non-essential domains, e.g.:
+# loadrunner:      { enabled: false }
+# legacy-stack:    { enabled: false }

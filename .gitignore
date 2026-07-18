@@ -2,3 +2,4 @@
 .terraform/
 *.tfstate*
 .terraform.lock.hcl
+lc

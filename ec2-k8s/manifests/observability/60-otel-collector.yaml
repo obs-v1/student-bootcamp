@@ -1,0 +1,59 @@
+# OTel Collector — same image + course config (config/otel/…) as compose.
+# The static scrape targets and exporter endpoints in that config are plain
+# service names (jaeger, prometheus, loki, kafka, account-service, …) which
+# resolve unchanged inside the bankobs namespace.
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  namespace: bankobs
+  labels: { app: otel-collector, tier: observability }
+spec:
+  selector: { app: otel-collector }
+  ports:
+    - { name: otlp-grpc, port: 4317, targetPort: 4317 }
+    - { name: otlp-http, port: 4318, targetPort: 4318 }
+    - { name: metrics, port: 8888, targetPort: 8888 }
+    - { name: health, port: 13133, targetPort: 13133 }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  namespace: bankobs
+  labels: { app: otel-collector, tier: observability }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: otel-collector } }
+  template:
+    metadata:
+      labels: { app: otel-collector, tier: observability }
+    spec:
+      containers:
+        - name: otel-collector
+          image: otel/opentelemetry-collector-contrib:0.92.0
+          args: [--config=/etc/otel/config.yaml]
+          ports:
+            - { containerPort: 4317 }
+            - { containerPort: 4318 }
+            - { containerPort: 8888 }
+            - { containerPort: 13133 }
+          readinessProbe:
+            httpGet: { path: /, port: 13133 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /, port: 13133 }
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests: { cpu: 200m, memory: 512Mi }
+            limits: { cpu: "1", memory: 1Gi }
+          volumeMounts:
+            - name: config
+              mountPath: /etc/otel/config.yaml
+              subPath: otel-collector-config.yaml
+              readOnly: true
+      volumes:
+        - name: config
+          configMap: { name: otel-collector-config }

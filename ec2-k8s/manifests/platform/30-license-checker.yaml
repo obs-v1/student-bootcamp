@@ -1,0 +1,49 @@
+# license-checker — every app service validates against it at
+# http://license-checker:7743. LICENSE_KEY and the host fingerprint values
+# (HOST_MACHINE_ID / HOST_MAC / HOST_HOSTNAME) come from the `bankobs-license`
+# Secret, which the Makefile builds from ../.env + the EC2 host's identifiers.
+# The license binds to the EC2 machine, so `make fingerprint` must be run on
+# the EC2 host itself.
+apiVersion: v1
+kind: Service
+metadata:
+  name: license-checker
+  namespace: bankobs
+  labels: { app: license-checker, domain: platform }
+spec:
+  selector: { app: license-checker }
+  ports:
+    - { name: http, port: 7743, targetPort: 7743 }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: license-checker
+  namespace: bankobs
+  labels: { app: license-checker, domain: platform }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: license-checker } }
+  template:
+    metadata:
+      labels: { app: license-checker, domain: platform }
+    spec:
+      containers:
+        - name: license-checker
+          image: public.ecr.aws/w8x4g9h7/obs-v1/license-checker:1.0.0
+          ports: [{ containerPort: 7743 }]
+          envFrom:
+            - secretRef: { name: bankobs-license }
+          env:
+            - { name: OBSERVABILITY_MODE, value: dark }
+            - { name: OTEL_SDK_DISABLED, value: "true" }
+            - { name: MANAGEMENT_TRACING_ENABLED, value: "false" }
+            - { name: MANAGEMENT_OTLP_METRICS_EXPORT_ENABLED, value: "false" }
+            - { name: LOGGING_LEVEL_IO_OPENTELEMETRY, value: "OFF" }
+          readinessProbe:
+            tcpSocket: { port: 7743 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { cpu: 500m, memory: 512Mi }

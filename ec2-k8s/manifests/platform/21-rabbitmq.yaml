@@ -1,0 +1,74 @@
+# RabbitMQ — notification dispatch.
+# Queue/exchange definitions load at boot from the `rabbitmq-definitions`
+# ConfigMap (../infrastructure/messaging/rabbitmq/definitions.json), the same
+# way the compose service does it.
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: bankobs
+  labels: { app: rabbitmq, tier: data }
+spec:
+  selector: { app: rabbitmq }
+  ports:
+    - { name: amqp, port: 5672, targetPort: 5672 }
+    - { name: management, port: 15672, targetPort: 15672 }
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbitmq
+  namespace: bankobs
+  labels: { app: rabbitmq, tier: data }
+spec:
+  serviceName: rabbitmq
+  replicas: 1
+  selector: { matchLabels: { app: rabbitmq } }
+  template:
+    metadata:
+      labels: { app: rabbitmq, tier: data }
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3.12-management-alpine
+          command:
+            - sh
+            - -c
+            - >
+              echo 'load_definitions = /etc/rabbitmq/definitions.json'
+              > /etc/rabbitmq/rabbitmq.conf &&
+              rabbitmq-server
+          ports:
+            - { containerPort: 5672 }
+            - { containerPort: 15672 }
+          env:
+            - { name: RABBITMQ_DEFAULT_USER, value: guest }
+            - { name: RABBITMQ_DEFAULT_PASS, value: guest }
+          readinessProbe:
+            exec: { command: [rabbitmq-diagnostics, -q, ping] }
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 10
+          livenessProbe:
+            exec: { command: [rabbitmq-diagnostics, -q, ping] }
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { cpu: "1", memory: 512Mi }
+          volumeMounts:
+            - { name: data, mountPath: /var/lib/rabbitmq }
+            - name: definitions
+              mountPath: /etc/rabbitmq/definitions.json
+              subPath: definitions.json
+              readOnly: true
+      volumes:
+        - name: definitions
+          configMap: { name: rabbitmq-definitions }
+  volumeClaimTemplates:
+    - metadata: { name: data }
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: standard
+        resources: { requests: { storage: 2Gi } }
