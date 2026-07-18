@@ -34,6 +34,7 @@ if [ ! -f /usr/local/bin/helm ] ; then
   curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4 | bash
 fi
 
+export PATH="/usr/local/bin:$PATH"
 say "versions"
 docker --version
 kind --version
