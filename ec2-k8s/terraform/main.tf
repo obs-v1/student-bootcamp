@@ -102,6 +102,7 @@ resource "null_resource" "wait_for_instance" {
 
   provisioner "remote-exec" {
     inline = [
+      "rm -rf student-bootcamp",
       "git clone https://github.com/obs-v1/student-bootcamp.git",
       "cd student-bootcamp/ec2-k8s",
       "sudo bash scripts/install-tools.sh"
