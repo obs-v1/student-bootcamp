@@ -39,7 +39,7 @@ resource "aws_security_group" "ssh" {
 
 # Security group that opens ALL ports to any IPv4 source (0.0.0.0/0)
 resource "aws_security_group" "all_open" {
-  name        = "spot-r5-2xlarge-all-open"
+  name        = "spot-r5-8xlarge-all-open"
   description = "Allow all inbound traffic from any IPv4"
 
   ingress {
@@ -64,7 +64,7 @@ resource "aws_security_group" "all_open" {
 
 resource "aws_instance" "spot" {
   ami           = "ami-0220d79f3f480ecf5"
-  instance_type = "r5.2xlarge"
+  instance_type = "r5.8xlarge"
   key_name      = "devops"
 
   vpc_security_group_ids = [aws_security_group.ssh.id, aws_security_group.all_open.id]
