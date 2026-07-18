@@ -32,6 +32,9 @@ fi
 if [ ! -f /usr/local/bin/helm ] ; then
   say "installing helm"
   curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4 | bash
+  if [ $? -ne 0 ]; then 
+    curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4 | bash
+  fi
 fi
 
 export PATH="/usr/local/bin:$PATH"
@@ -42,6 +45,13 @@ kubectl version --client --output=yaml | grep gitVersion || true
 helm version --short
 jq --version
 make --version | head -1
+
+
+say "resizing disk volumes"
+growpart /dev/nvme0n1 4 
+lvextend -r -L 100G /dev/mapper/RootVG-varVol
+lvextend -r -L 15G /dev/mapper/RootVG-rootVol
+lvextend -r -L 5G /dev/mapper/RootVG-homeVol
 
 echo ""
 echo "✓ tools installed."

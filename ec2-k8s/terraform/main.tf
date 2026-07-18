@@ -79,7 +79,7 @@ resource "aws_instance" "spot" {
 
   # 100 GB root disk
   root_block_device {
-    volume_size = 100
+    volume_size = 150
     volume_type = "gp3"
   }
 
