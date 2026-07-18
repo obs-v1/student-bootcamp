@@ -44,6 +44,7 @@ spec:
                 - -c
                 - curl -sf http://localhost:9200/_cluster/health | grep -E '"status":"(green|yellow)"'
             periodSeconds: 10
+            timeoutSeconds: 10
             failureThreshold: 30
           readinessProbe:
             exec:

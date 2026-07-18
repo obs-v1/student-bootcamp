@@ -10,6 +10,10 @@ metadata:
   labels: { app: kafka, tier: data }
 spec:
   selector: { app: kafka }
+  # The KRaft controller bootstraps by dialling itself at kafka:9093 before
+  # the pod is Ready — without this the Service has no endpoints yet and
+  # startup deadlocks.
+  publishNotReadyAddresses: true
   ports:
     - { name: broker, port: 9092, targetPort: 9092 }
     - { name: controller, port: 9093, targetPort: 9093 }
@@ -55,6 +59,7 @@ spec:
                 - -c
                 - /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1
             periodSeconds: 10
+            timeoutSeconds: 10
             failureThreshold: 30
           readinessProbe:
             exec:

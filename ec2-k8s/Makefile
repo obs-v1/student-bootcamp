@@ -12,6 +12,9 @@ ROOT           := ..
 HELM_DIR       := $(ROOT)/helm/bankobserve360
 RELEASE        := bankobs
 KCTL           := kubectl -n $(NS)
+# Helm 4 uses server-side apply; --force-conflicts lets re-deploys overwrite
+# fields the deploy target itself patched via kubectl (env, resources).
+HELM_SSA       := $(shell helm version --short 2>/dev/null | grep -q "^v4" && echo --force-conflicts)
 
 # Host hardware identifiers — the license binds to the EC2 machine, so these
 # are computed on the host and passed into the in-cluster license-checker.
@@ -99,13 +102,22 @@ deploy: _check-license  ## Deploy the platform: infra manifests + Helm chart + e
 	@echo ""
 	@echo "⛵ [4/6] Helm — the 65 application services (public images, no build)"
 	@helm dependency build $(HELM_DIR) >/dev/null 2>&1 || true
-	@helm upgrade --install $(RELEASE) $(HELM_DIR) -n $(NS) \
+	@helm upgrade --install $(RELEASE) $(HELM_DIR) -n $(NS) $(HELM_SSA) \
 	  -f $(HELM_DIR)/values.yaml -f values-kind.yaml --timeout 20m
 	@echo ""
 	@echo "🔌 [5/6] wiring compose-equivalent environment into every app service"
+	@# Single node: forbid surge rollouts (the old pod must free its CPU/pod
+	@# slot before the new one schedules) — with ~90 pods a surged rollout
+	@# deadlocks on the 110-pod/‌full-CPU node.
+	@$(KCTL) get deploy -l domain -o name | \
+	  xargs -I{} $(KCTL) patch {} --type=merge \
+	    -p '{"spec":{"strategy":{"type":"RollingUpdate","rollingUpdate":{"maxSurge":0,"maxUnavailable":1}}}}' >/dev/null
 	@# kubectl can't combine --from=configmap with a label selector, so enumerate:
 	@$(KCTL) get deploy -l domain -o name | \
 	  xargs -I{} $(KCTL) set env {} --from=configmap/bankobs-env >/dev/null
+	@# Halve the chart-hardcoded 100m CPU request so the full stack also fits
+	@# an 8-vCPU host (no-op headroom cost on 16 vCPU).
+	@$(KCTL) set resources deployment -l domain --requests=cpu=50m,memory=128Mi >/dev/null
 	@echo "✓ env injected (deployments roll once with the DB/Kafka/license settings)"
 	@$(KCTL) get svc loadrunner -o jsonpath='{.spec.ports[*].port}' 2>/dev/null | grep -q 9090 || \
 	  $(KCTL) patch svc loadrunner --type=json \

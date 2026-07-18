@@ -22,7 +22,10 @@ global:
 # real configs from this repo's config/ directory.
 observability-stack: { enabled: false }
 
-# On a smaller instance (m5.2xlarge) you can free capacity by disabling
+# The loadrunner image was never published to the public registry (it is not
+# part of docker-compose either) — its pod would sit in ImagePullBackOff.
+loadrunner: { enabled: false }
+
+# On a smaller instance you can free further capacity by disabling
 # non-essential domains, e.g.:
-# loadrunner:      { enabled: false }
 # legacy-stack:    { enabled: false }

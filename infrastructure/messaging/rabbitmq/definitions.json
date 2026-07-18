@@ -1,7 +1,7 @@
 {
   "rabbit_version": "3.12.0",
   "users": [
-    { "name": "guest", "password_hash": "guest", "hashing_algorithm": "rabbit_password_hashing_sha256", "tags": "administrator" }
+    { "name": "guest", "password_hash": "kI3GCrswBLNZQzHJJ95QLoyfAVooYhnvf7jbqiW9BjOYUloe", "hashing_algorithm": "rabbit_password_hashing_sha256", "tags": "administrator" }
   ],
   "vhosts": [ { "name": "/" } ],
   "permissions": [

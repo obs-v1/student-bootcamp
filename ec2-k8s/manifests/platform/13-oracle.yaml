@@ -32,7 +32,10 @@ spec:
           ports: [{ containerPort: 1521 }]
           env:
             - { name: ORACLE_PASSWORD, value: Training123! }
-            - { name: ORACLE_DATABASE, value: XEPDB1 }
+            # NOTE: no ORACLE_DATABASE here — XE 21c auto-creates XEPDB1 as its
+            # default PDB; asking the entrypoint to create it again fails first
+            # boot with ORA-65012 (current gvenzl images). APP_USER lands in
+            # XEPDB1 either way, which is what the apps' JDBC URL uses.
             - { name: APP_USER, value: BANKOBS_CORE }
             - { name: APP_USER_PASSWORD, value: Training123! }
           # First boot (datafile creation + init scripts) is slow — give the
@@ -40,6 +43,7 @@ spec:
           startupProbe:
             exec: { command: [healthcheck.sh] }
             periodSeconds: 10
+            timeoutSeconds: 10
             failureThreshold: 120
           readinessProbe:
             exec: { command: [healthcheck.sh] }
@@ -52,7 +56,7 @@ spec:
             failureThreshold: 5
           resources:
             requests: { cpu: 500m, memory: 1Gi }
-            limits: { cpu: "2", memory: 2Gi }
+            limits: { cpu: "2", memory: 4Gi }
           volumeMounts:
             - { name: data, mountPath: /opt/oracle/oradata }
             - { name: init, mountPath: /container-entrypoint-initdb.d, readOnly: true }
