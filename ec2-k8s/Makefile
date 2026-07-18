@@ -238,10 +238,10 @@ down:                ## Delete the ENTIRE kind cluster (all data gone; images st
 	@kind delete cluster --name $(CLUSTER)
 
 tf-apply:
-	@cd terraform && terraform apply -auto-approve
+	@cd terraform && terraform init && terraform apply -auto-approve
 
 tf-destroy:
-	@cd terraform && terraform destroy -auto-approve
+	@cd terraform && terraform init && terraform destroy -auto-approve
 
 nuke:
-	@cd terraform && terraform destroy -auto-approve
+	@cd terraform && terraform init && terraform destroy -auto-approve

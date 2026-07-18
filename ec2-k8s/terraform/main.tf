@@ -93,3 +93,26 @@ output "public_ip" {
   value       = aws_instance.spot.public_ip
 }
 
+resource "null_resource" "wait_for_instance" {
+  depends_on = [aws_instance.spot]
+
+  triggers ={
+    instance_id = timestamp()
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "git clone https://github.com/obs-v1/student-bootcamp.git",
+      "cd student-bootcamp/ec2-k8s",
+      "sudo bash scripts/install-tools.sh"
+    ]
+
+    connection {
+      type        = "ssh"
+      host        = aws_instance.spot.public_ip
+      user        = "ec2-user"
+      password    = "DevOps321"
+    }
+  }
+}
+

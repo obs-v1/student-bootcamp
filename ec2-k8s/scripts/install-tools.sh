@@ -18,20 +18,20 @@ if ! command -v kubectl >/dev/null 2>&1; then
   say "installing kubectl"
   KUBECTL_VERSION="$(curl -sL https://dl.k8s.io/release/stable.txt)"
   curl -sLo /tmp/kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
-  sudo install -m 0755 /tmp/kubectl /usr/local/bin/kubectl && rm /tmp/kubectl
+  install -m 0755 /tmp/kubectl /usr/local/bin/kubectl && rm /tmp/kubectl
 fi
 
 # ── kind ─────────────────────────────────────────────────────────────────────
 if ! command -v kind >/dev/null 2>&1; then
   say "installing kind ${KIND_VERSION}"
   curl -sLo /tmp/kind "https://kind.sigs.k8s.io/dl/${KIND_VERSION}/kind-linux-amd64"
-  sudo install -m 0755 /tmp/kind /usr/local/bin/kind && rm /tmp/kind
+  install -m 0755 /tmp/kind /usr/local/bin/kind && rm /tmp/kind
 fi
 
 # ── helm ─────────────────────────────────────────────────────────────────────
-if ! command -v helm >/dev/null 2>&1; then
+if [ ! -f /usr/local/bin/helm ] ; then
   say "installing helm"
-  curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4 | bash
 fi
 
 say "versions"
