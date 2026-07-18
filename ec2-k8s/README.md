@@ -72,6 +72,23 @@ values the fingerprint was computed from.
 
 ## 4 · Create the cluster and deploy
 
+One shot (does everything below, plus waits for the data stores, runs the
+extra seeds and the smoke test — needs the license in `../.env` first):
+
+```bash
+make up
+```
+
+For headless/end-to-end automation the license can be passed via the
+environment instead of `../.env` (works with a cohort key whose hardware
+binding is `*` — no fingerprint step needed):
+
+```bash
+LICENSE_KEY=eyJ... make up
+```
+
+Or step by step:
+
 ```bash
 make cluster-up      # kind cluster with host ports 80/13000/16686/9090 mapped
 make deploy          # ConfigMaps + Secret → infra manifests → Helm chart → env wiring

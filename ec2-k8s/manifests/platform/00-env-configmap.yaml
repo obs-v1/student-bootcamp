@@ -40,13 +40,14 @@ data:
   ORACLE_USER: BANKOBS_CORE
   ORACLE_PASSWORD: Training123!
 
-  # PostgreSQL
+  # PostgreSQL — host/user/password ONLY, exactly like the compose per-service
+  # env. Do NOT add POSTGRES_URL/POSTGRES_DB here: Spring services bind
+  # ${POSTGRES_URL} into spring.datasource.url and a libpq-style URL (no jdbc:
+  # prefix) breaks them; each service's jar carries its own correct per-DB
+  # jdbc default.
   POSTGRES_HOST: postgres
-  POSTGRES_PORT: "5432"
   POSTGRES_USER: bankobs
   POSTGRES_PASSWORD: Training123!
-  POSTGRES_DB: bankobs_identity
-  POSTGRES_URL: postgresql://bankobs:Training123!@postgres:5432/bankobs_identity
 
   # MongoDB
   MONGODB_URL: mongodb://bankobs:Training123!@mongodb:27017/bankobs?authSource=admin
@@ -54,7 +55,6 @@ data:
   # Redis
   REDIS_HOST: redis
   REDIS_PORT: "6379"
-  REDIS_URL: redis://redis:6379
 
   # Cassandra
   CASSANDRA_HOSTS: cassandra:9042

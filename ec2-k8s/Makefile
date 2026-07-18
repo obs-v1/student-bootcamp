@@ -22,15 +22,29 @@ HELM_SSA       := $(shell helm version --short 2>/dev/null | grep -q "^v4" && ec
 HOST_MACHINE_ID := $(shell if [ -f /etc/machine-id ]; then cat /etc/machine-id; else echo unknown; fi)
 HOST_MAC        := $(shell ip -o link show 2>/dev/null | awk -F'link/ether ' 'NR==2{print $$2}' | awk '{print $$1}')
 HOST_HOSTNAME   := $(shell hostname)
-LICENSE_KEY     := $(shell grep '^LICENSE_KEY=' $(ROOT)/.env 2>/dev/null | cut -d= -f2-)
+# Overridable from the environment for headless automation:
+#   LICENSE_KEY=eyJ... make up
+LICENSE_KEY     ?= $(shell grep '^LICENSE_KEY=' $(ROOT)/.env 2>/dev/null | cut -d= -f2-)
 
-.PHONY: help prep fingerprint cluster-up deploy wait-infra status health smoke urls \
+.PHONY: help up prep fingerprint cluster-up deploy wait-infra seed-extras status health smoke urls \
         obs-on obs-off seed-verify logs-svc restart-svc fix-cassandra \
         shell-oracle shell-pg shell-mongo shell-redis shell-cassandra shell-kafka \
         down nuke
 
 help:                ## Show this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
+
+up:                  ## ONE SHOT: prep → kind cluster → deploy → wait for stores + seeds → smoke
+	@$(MAKE) prep
+	@$(MAKE) cluster-up
+	@$(MAKE) deploy
+	@echo ""
+	@echo "⏳ waiting for data stores + init jobs + extra seeds (Oracle takes ~10 min)…"
+	@$(MAKE) wait-infra
+	@$(MAKE) smoke
+	@$(MAKE) urls
+	@echo ""
+	@echo "✓ up complete. Week 1: make obs-on"
 
 # ──────────────────────────────────────────────────────────────────────────────
 #  HOST PREP + CLUSTER
@@ -141,7 +155,24 @@ wait-infra:          ## Block until all data stores are Ready (Oracle can take ~
 	done
 	@echo "→ waiting for init jobs (Kafka topics, Cassandra keyspace, ES indices)"
 	@$(KCTL) wait --for=condition=complete job -l part-of=bankobs-init --timeout=15m
+	@$(MAKE) -s seed-extras
 	@echo "✓ all data stores ready and seeded"
+
+seed-extras:         ## Post-boot seeds the initdb scripts don't cover (root Makefile parity)
+	@# = root `make seed-postgres` — FD/RD ids are 39 chars; without VARCHAR(40)
+	@# every fixed/recurring deposit booking fails.
+	@$(KCTL) exec postgres-0 -- psql -U bankobs -d bankobs_retail -c \
+	  "ALTER TABLE fixed_deposits     ALTER COLUMN fd_id TYPE VARCHAR(40); \
+	   ALTER TABLE recurring_deposits ALTER COLUMN rd_id TYPE VARCHAR(40);" >/dev/null
+	@# = root `make seed-cards` — the UI shows no cards without these 500 rows.
+	@$(KCTL) exec postgres-0 -- psql -U bankobs -d bankobs_retail -c \
+	  "INSERT INTO credit_cards (card_id, customer_id, card_number_masked, credit_limit, current_balance, status) \
+	   SELECT 'CC-CUST' || lpad(g::text, 3, '0') || '-0001', 'CUST-' || lpad(g::text, 8, '0'), \
+	   'XXXX XXXX XXXX ' || lpad((1000 + g)::text, 4, '0'), \
+	   (CASE WHEN g % 5 = 0 THEN 500000 WHEN g % 3 = 0 THEN 300000 WHEN g % 2 = 0 THEN 150000 ELSE 75000 END)::numeric, \
+	   ((g % 11) * 5000)::numeric, CASE WHEN g % 50 = 0 THEN 'BLOCKED' ELSE 'ACTIVE' END \
+	   FROM generate_series(1, 500) g ON CONFLICT (card_id) DO NOTHING;" >/dev/null
+	@echo "✓ extra seeds: credit cards + fd/rd column widths"
 
 # ──────────────────────────────────────────────────────────────────────────────
 #  OBSERVABILITY (Week 1 — the `make obs-up` equivalent)
