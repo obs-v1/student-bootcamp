@@ -11,20 +11,7 @@ ARCH="$(uname -m)"
 
 say() { echo -e "\n─── $* ───"; }
 
-# ── OS packages + Docker ─────────────────────────────────────────────────────
-if [ -f /etc/os-release ] && grep -qi 'amazon linux' /etc/os-release; then
-  say "Amazon Linux: installing docker, make, jq, git"
-  sudo dnf install -y docker make jq git
-elif command -v apt-get >/dev/null 2>&1; then
-  say "Ubuntu/Debian: installing docker, make, jq, git"
-  sudo apt-get update -y
-  sudo apt-get install -y docker.io make jq git curl
-else
-  echo "✗ unsupported distro — install docker, make, jq, git manually"; exit 1
-fi
-
-sudo systemctl enable --now docker
-sudo usermod -aG docker "${USER}"
+labauto docker-stack
 
 # ── kubectl (latest stable) ──────────────────────────────────────────────────
 if ! command -v kubectl >/dev/null 2>&1; then

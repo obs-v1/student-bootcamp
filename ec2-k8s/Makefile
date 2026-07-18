@@ -237,5 +237,11 @@ shell-kafka:         ## List Kafka topics
 down:                ## Delete the ENTIRE kind cluster (all data gone; images stay in docker)
 	@kind delete cluster --name $(CLUSTER)
 
-nuke: down           ## down + prune the pulled images (frees ~40G of disk)
-	@docker system prune -af --volumes
+tf-apply:
+	@cd terraform && terraform apply -auto-approve
+
+tf-destroy:
+	@cd terraform && terraform destroy -auto-approve
+
+nuke:
+	@cd terraform && terraform destroy -auto-approve

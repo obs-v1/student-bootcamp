@@ -23,7 +23,7 @@ EC2 host (m5.4xlarge)
 
 Everything runs in the single `bankobs` namespace so that the compose-era
 hostnames (`oracle`, `kafka`, `license-checker`, …) resolve unchanged, which is
-what lets the course configs under `config/` (Prometheus scrape targets,
+what lets the configs under `config/` (Prometheus scrape targets,
 Grafana datasources, OTel exporters) be mounted as ConfigMaps **verbatim**.
 
 ## 1 · EC2 instance
@@ -32,11 +32,14 @@ Grafana datasources, OTel exporters) be mounted as ConfigMaps **verbatim**.
 |---|---|---|
 | Instance type | **m5.4xlarge** (16 vCPU / 64 GB) recommended | ~90 pods on one node; the Helm chart requests 100m CPU / 128 Mi per app pod, plus the data stores. On an m5.2xlarge you must disable sub-charts in `values-kind.yaml` (comments included). |
 | Root volume | **150 GB gp3** | Images are stored twice: once in docker on the host, once inside the kind node's containerd. |
-| AMI | Amazon Linux 2023 or Ubuntu 22.04+, **x86_64** | Images are amd64. |
+| AMI | Redhat-9-DevOps-Practice (ami-0220d79f3f480ecf5) |
 | Security group | Inbound **80** (portal), and after Week 1: **13000** (Grafana), **16686** (Jaeger), **9090** (Prometheus) — restrict to *your* IP | These are the only host-published ports (see `kind-config.yaml`). |
 
-No security group opening needed if you prefer SSH tunnels:
-`ssh -L 8080:localhost:80 -L 13000:localhost:13000 ec2-user@<ip>`.
+All the above setup can also be done with code
+
+```
+make tf-apply
+```
 
 ## 2 · Install tools
 
