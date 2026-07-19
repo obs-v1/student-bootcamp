@@ -743,3 +743,12 @@ ec2-prep:            ## Linux/EC2 host prep: sysctls + prereq checks (run once, 
 	@FREE=$$(df -BG --output=avail . 2>/dev/null | tail -1 | tr -dc 0-9 || echo 999); \
 	  [ "$$FREE" -ge 60 ] 2>/dev/null && echo "✓ disk: $${FREE}G free" || echo "⚠ less than 60G free — image pulls + data need ~60G"
 	@echo "✓ host ready. Next: make fingerprint"
+
+tf-apply:
+	terraform init 
+	terraform apply -auto-approve
+
+tf-destroy:
+	terraform init
+	terraform destroy -auto-approve
+

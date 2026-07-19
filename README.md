@@ -3,55 +3,19 @@
 A complete 75-service banking platform for the Observability course.
 All images are PUBLIC at public.ecr.aws/w8x4g9h7/obs-v1/* — nothing to build, no registry login needed.
 
-## Quick start (local — docker-compose)
-
-Copy config file
-
-```bash
-cp .env.example .env
-```
-
-### paste the license you receive into .env as LICENSE_KEY=...
-```
-LICENSE_KEY=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjb2hvcnRAYmFua29ic2VydmUzNjAudHJhaW5pbmciLCJodyI6IioiLCJ0aWVyIjoic3R1ZGVudCIsImZlYXR1cmVzIjpbImFsbCJdLCJqdGkiOiI0NDY4OTRhNS00NDg5LTQ5ZDctOGE2Mi0zM2FkYTYxY2MwNjMiLCJpc3MiOiJiYW5rb2JzZXJ2ZTM2MCIsImV4cCI6MTc5ODgwMzM0MSwiaWF0IjoxNzgzMjUxMzQxfQ.RuC_RlHu6yHRrLglVd_ExZynHq1Lb9nlYruoyFfEO5Hk1uU7PU9z5b_F9F7nzW3Hj3MHVJMj5MhGOjYYZWeiAQ
-```
-
-## Run the following commands
-
-```bash
-make compose-up             # bring up the BANKING APPLICATION (first run pulls images)
-make seed                   # load banking data (accounts, transactions, topics)
-make smoke                  # balance → UPI payment → loan application, end-to-end
-make urls                   # every UI and where to find it
-```
-
-## Quick start (AWS — EKS)
-
-```bash
-cp .env.example .env        # license flow as above
-make eks-up                 # Terraform: VPC + EKS + nodes, then Helm-deploys the platform
-make eks-status
-make eks-down               # DESTROYS all AWS resources when you're done
-```
-
-⚠️ `eks-up` creates real AWS resources (≈ $1.5–2/hour while running).
-
-## Daily commands
-
-`make status` · `make health` · `make smoke` · `make logs-svc S=<name>` · `make compose-down`
-
-## Running on a Linux EC2 server
+## Running on a Linux EC2 server Manually and running the commands manually
 
 Works natively (the images are x86_64). Checklist:
 
-1. Instance: **m5.2xlarge minimum** (8 vCPU / 32 GB), **100 GB gp3** root volume
-2. Install Docker + the compose v2 plugin, `make`, `jq`, `git`
-3. Clone this WHOLE folder (the compose file bind-mounts `./config` and `./infrastructure`)
-4. `make ec2-prep` — sets `vm.max_map_count` (Elasticsearch dies without it) and checks prereqs
-5. `make fingerprint` — the license binds to the EC2 machine, so run it THERE
-6. Security group: open port 80 for the portal (http://<server-ip>). Other service ports bind 0.0.0.0 too, so restrict the SG to your IP where possible, or use SSH tunnels: `ssh -L 8080:localhost:80 ec2-user@<ip>`
+1. Instance: **r5.4xlarge minimum** (8 vCPU / 32 GB), **150 GB gp3** root volume. Prefer to take spot to save the cost.
+2. Install Docker + the compose. You can clone this repo and run `bash scripts/install-tools.sh`
+3. Setup license - `sed -e '/^LICENSE_KEY/ c LICENSE_KEY=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjb2hvcnRAYmFua29ic2VydmUzNjAudHJhaW5pbmciLCJodyI6IioiLCJ0aWVyIjoic3R1ZGVudCIsImZlYXR1cmVzIjpbImFsbCJdLCJqdGkiOiI0NDY4OTRhNS00NDg5LTQ5ZDctOGE2Mi0zM2FkYTYxY2MwNjMiLCJpc3MiOiJiYW5rb2JzZXJ2ZTM2MCIsImV4cCI6MTc5ODgwMzM0MSwiaWF0IjoxNzgzMjUxMzQxfQ.RuC_RlHu6yHRrLglVd_ExZynHq1Lb9nlYruoyFfEO5Hk1uU7PU9z5b_F9F7nzW3Hj3MHVJMj5MhGOjYYZWeiAQ' .env.example >.env`
+4. You can deploy the services using `cd ec2-k8s && make up`
 
-## If something misbehaves
 
-`make fix-cassandra` handles the known Cassandra cold-start issue (re-run `make seed` after).
-For anything else: `make status`, then `docker logs bankobs-<service>`.
+## These all can be alternatively initate with terraform code.
+
+```
+make tf-apply
+```
+

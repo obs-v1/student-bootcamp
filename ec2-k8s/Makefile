@@ -313,11 +313,3 @@ shell-kafka:         ## List Kafka topics
 down:                ## Delete the ENTIRE kind cluster (all data gone; images stay in docker)
 	@kind delete cluster --name $(CLUSTER)
 
-tf-apply:
-	@cd terraform && terraform init && terraform apply -auto-approve
-
-tf-destroy:
-	@cd terraform && terraform init && terraform destroy -auto-approve
-
-nuke:
-	@cd terraform && terraform init && terraform destroy -auto-approve
