@@ -49,7 +49,7 @@ make --version | head -1
 
 
 say "resizing disk volumes"
-growpart /dev/nvme0n1 4 
+growpart /dev/nvme0n1 4 || true
 lvextend -r -L 100G /dev/mapper/RootVG-varVol
 lvextend -r -L 15G /dev/mapper/RootVG-rootVol
 lvextend -r -L 5G /dev/mapper/RootVG-homeVol
