@@ -45,9 +45,9 @@ up:                  ## ONE SHOT: prep → kind cluster → deploy → wait for 
 	@echo "⏳ waiting for the core app services (first-run image pulls: 15–40 min)…"
 	@$(MAKE) wait-apps
 	@$(MAKE) smoke
-	@$(MAKE) urls
-	@echo ""
-	@echo "✓ up complete. Week 1: make obs-on"
+	#@$(MAKE) urls
+	#@echo ""
+	#@echo "✓ up complete. Week 1: make obs-on"
 
 wait-apps:           ## Block until the smoke-critical app services are rolled out
 	@# Deliberately NOT all 60 — balance-service & cheque-service ship broken
