@@ -95,7 +95,7 @@ output "public_ip" {
 resource "null_resource" "make_instance_ready" {
   depends_on = [aws_instance.spot]
 
-  triggers ={
+  triggers = {
     instance_id = timestamp()
   }
 
@@ -108,10 +108,10 @@ resource "null_resource" "make_instance_ready" {
     ]
 
     connection {
-      type        = "ssh"
-      host        = aws_instance.spot.public_ip
-      user        = "ec2-user"
-      password    = "DevOps321"
+      type     = "ssh"
+      host     = aws_instance.spot.public_ip
+      user     = "ec2-user"
+      password = "DevOps321"
     }
   }
 }
@@ -119,22 +119,23 @@ resource "null_resource" "make_instance_ready" {
 resource "null_resource" "deploy_app" {
   depends_on = [aws_instance.spot, null_resource.make_instance_ready]
 
-  triggers ={
+  triggers = {
     instance_id = timestamp()
   }
 
   provisioner "remote-exec" {
     inline = [
-     "cd student-bootcamp",
+      "cd student-bootcamp",
       "sed -e '/^LICENSE_KEY/ c LICENSE_KEY=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjb2hvcnRAYmFua29ic2VydmUzNjAudHJhaW5pbmciLCJodyI6IioiLCJ0aWVyIjoic3R1ZGVudCIsImZlYXR1cmVzIjpbImFsbCJdLCJqdGkiOiI0NDY4OTRhNS00NDg5LTQ5ZDctOGE2Mi0zM2FkYTYxY2MwNjMiLCJpc3MiOiJiYW5rb2JzZXJ2ZTM2MCIsImV4cCI6MTc5ODgwMzM0MSwiaWF0IjoxNzgzMjUxMzQxfQ.RuC_RlHu6yHRrLglVd_ExZynHq1Lb9nlYruoyFfEO5Hk1uU7PU9z5b_F9F7nzW3Hj3MHVJMj5MhGOjYYZWeiAQ' .env.example >.env",
-      "cd ec2-k8s && make up"
+      "cd ec2-k8s && make up",
+      "cd ~/student-bootcamp && make loadrunner"
     ]
 
     connection {
-      type        = "ssh"
-      host        = aws_instance.spot.public_ip
-      user        = "ec2-user"
-      password    = "DevOps321"
+      type     = "ssh"
+      host     = aws_instance.spot.public_ip
+      user     = "ec2-user"
+      password = "DevOps321"
     }
   }
 }

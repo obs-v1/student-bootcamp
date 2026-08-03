@@ -527,6 +527,22 @@ _login:
 	  -H 'Content-Type: application/json' \
 	  -d '{"customer_id":"$(CUST)","password":"$(PASS)"}' > /dev/null
 
+.PHONY: loadrunner loadrunner-stop loadrunner-logs
+
+loadrunner:          ## Install + start the always-on background load runner (systemd)
+	chmod +x scripts/loadrunner.sh
+	sudo cp scripts/bankobs-loadrunner.service /etc/systemd/system/bankobs-loadrunner.service
+	sudo systemctl daemon-reload
+	sudo systemctl enable --now bankobs-loadrunner
+	@echo "✓ loadrunner running (gentle always-on journey traffic). Logs: make loadrunner-logs"
+
+loadrunner-stop:     ## Stop + disable the background load runner
+	-sudo systemctl disable --now bankobs-loadrunner
+	@echo "✓ loadrunner stopped"
+
+loadrunner-logs:     ## Tail the background load runner logs
+	sudo journalctl -u bankobs-loadrunner -f --no-pager
+
 # ──────────────────────────────────────────────────────────────────────────────
 #  TRACE INSPECTION
 # ──────────────────────────────────────────────────────────────────────────────

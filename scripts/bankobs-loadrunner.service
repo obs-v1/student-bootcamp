@@ -1,0 +1,20 @@
+# Always-on background load runner for the bankobs stack.
+# Installed + started by `make loadrunner` (and automatically by `make tf-apply`).
+# It waits for the portal, then keeps a gentle stream of journeys flowing so the
+# dashboards, traces and SLOs always have live data.
+[Unit]
+Description=bankobs continuous load runner (gentle always-on journey traffic)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ec2-user
+Environment=PORTAL=http://localhost
+Environment=INTERVAL=2
+ExecStart=/home/ec2-user/student-bootcamp/scripts/loadrunner.sh
+Restart=always
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target
