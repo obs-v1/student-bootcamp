@@ -62,10 +62,10 @@ j_fail() {
     -d "{\"from_vpa\":\"ghost9999@bankobs\",\"to_vpa\":\"$(vpa)\",\"amount\":500,\"remarks\":\"loadrunner-fail\"}" >/dev/null 2>&1
 }
 
-# --- wait for the stack, then loop forever ---
-log "waiting for portal $PORTAL/api/health ..."
-until curl -sf -m 5 "$PORTAL/api/health" >/dev/null 2>&1; do sleep 10; done
-log "portal healthy — starting (interval=${INTERVAL}s, fail=${FAIL_PCT}%)"
+# --- wait for the portal to serve, then loop forever ---
+log "waiting for portal $PORTAL/ ..."
+until curl -sf -m 5 "$PORTAL/" >/dev/null 2>&1; do sleep 10; done
+log "portal up — starting (interval=${INTERVAL}s, fail=${FAIL_PCT}%)"
 login
 
 i=0
