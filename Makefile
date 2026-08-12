@@ -760,11 +760,14 @@ ec2-prep:            ## Linux/EC2 host prep: sysctls + prereq checks (run once, 
 	  [ "$$FREE" -ge 60 ] 2>/dev/null && echo "✓ disk: $${FREE}G free" || echo "⚠ less than 60G free — image pulls + data need ~60G"
 	@echo "✓ host ready. Next: make fingerprint"
 
-tf-apply:
-	terraform init 
+tf-install:
+	@command -v terraform >/dev/null 2>&1 || sudo labauto terraform
+
+tf-apply: tf-install
+	terraform init
 	terraform apply -auto-approve
 
-tf-destroy:
+tf-destroy: tf-install
 	terraform init
 	terraform destroy -auto-approve
 
