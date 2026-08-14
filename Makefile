@@ -63,11 +63,17 @@ NODE_SVCS      := remittance-service onboarding-service consent-service wealth-s
 
 ALL_APP_SVCS   := $(JAVA_SVCS) $(GO_SVCS) $(PY_SVCS) $(NODE_SVCS)
 
+# Staged-startup tuning: how many app services to launch per wave, and how long
+# to pause between waves. Small waves avoid the "75 JVMs at once" fork/memory
+# storm that can wedge a box (sshd/kernel go unresponsive) during a plain up.
+BATCH_SIZE     ?= 6
+BATCH_PAUSE    ?= 25
+
 # ──────────────────────────────────────────────────────────────────────────────
 #  LIFECYCLE
 # ──────────────────────────────────────────────────────────────────────────────
 
-.PHONY: up down restart reset stop nuke fix-cassandra
+.PHONY: up up-staged down restart reset stop nuke fix-cassandra
 
 up:                  ## Bring up the FULL stack (infra + observability + services + portal)
 	@$(MAKE) -s _check-license
@@ -84,6 +90,41 @@ up:                  ## Bring up the FULL stack (infra + observability + service
 	@$(MAKE) -s _wait-portal
 	@echo ""
 	@echo "✓ Stack is up. Run 'make status' to verify or 'make smoke' to test."
+	@$(MAKE) -s urls
+
+up-staged:           ## Bring up the stack in waves — safe on small/EC2 boxes (avoids the 75-JVMs-at-once storm)
+	@$(MAKE) -s _check-license
+	@echo "🔐 Starting license-checker…"
+	@$(COMPOSE) $(COMPOSE_FILES) up -d license-checker 2>&1 | tail -2 || true
+	@$(MAKE) -s _wait-license
+	@echo "🧱 Wave 1 — infra (databases + messaging)…"
+	@$(COMPOSE) $(COMPOSE_FILES) up -d \
+	  oracle postgres mongodb redis cassandra elasticsearch kafka rabbitmq transit-gateway-proxy \
+	  2>&1 | grep -vE 'Running|Recreate|Recreated' | tail -12 || true
+	@$(MAKE) -s _wait-oracle
+	@$(MAKE) -s _wait-cassandra
+	@echo "📈 Wave 2 — observability…"
+	@$(COMPOSE) $(COMPOSE_FILES) up -d \
+	  otel-collector jaeger prometheus grafana loki alertmanager fluent-bit \
+	  2>&1 | grep -vE 'Running|Recreate|Recreated' | tail -10 || true
+	@sleep 10
+	@echo "⚙️  Wave 3 — app services, $(BATCH_SIZE) at a time (pausing $(BATCH_PAUSE)s between waves)…"
+	@batch=""; n=0; total=0; \
+	for s in $(ALL_APP_SVCS); do \
+	  batch="$$batch $$s"; n=$$((n+1)); total=$$((total+1)); \
+	  if [ $$n -ge $(BATCH_SIZE) ]; then \
+	    echo "  →$$batch"; \
+	    $(COMPOSE) $(COMPOSE_FILES) up -d --no-deps $$batch >/dev/null 2>&1 || true; \
+	    sleep $(BATCH_PAUSE); n=0; batch=""; \
+	  fi; \
+	done; \
+	if [ -n "$$batch" ]; then echo "  →$$batch"; $(COMPOSE) $(COMPOSE_FILES) up -d --no-deps $$batch >/dev/null 2>&1 || true; fi; \
+	echo "  ✓ $$total app services launched in waves"
+	@echo "🌐 Wave 4 — web portal…"
+	@$(COMPOSE) $(COMPOSE_FILES) up -d --no-deps web-portal 2>&1 | tail -2 || true
+	@$(MAKE) -s _wait-portal
+	@echo ""
+	@echo "✓ Staged stack is up. Give it ~4 min to warm (Oracle/Cassandra/Python), then 'make smoke'."
 	@$(MAKE) -s urls
 
 _check-license:
