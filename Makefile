@@ -289,7 +289,7 @@ restart-svc:         ## Restart a single service:  make restart-svc S=upi-servic
 #  STATUS / HEALTH
 # ──────────────────────────────────────────────────────────────────────────────
 
-.PHONY: status ps health smoke urls
+.PHONY: status ps health smoke urls demo
 
 status:              ## Show count of healthy/unhealthy containers
 	@docker ps --filter "name=bankobs-" --format '{{.Status}}' | awk ' \
@@ -334,6 +334,64 @@ smoke:               ## End-to-end smoke (login → balance → UPI pay → loan
 	  -H 'Content-Type: application/json' \
 	  -d '{"amount":50000,"tenure_months":12,"purpose":"PERSONAL"}' \
 	  | jq -c '{ok, applicationId, status, traceId}'
+
+# ── Live "blind → obvious" incident demo (the deck's closing scene) ─────────
+DEMO_DEP  ?= account-service   # the real dependency the demo kills (e.g. make demo DEMO_DEP=fraud-detection)
+DEMO_STEP ?= 1                 # 1 = pause for the presenter between acts; DEMO_STEP=0 runs straight through
+
+demo:                ## Live demo: drive a payment, break a dependency, watch it go from BLIND to OBVIOUS, recover
+	@command -v jq >/dev/null || { echo "jq is required"; exit 1; }
+	@curl -sf -m 3 $(PORTAL)/ >/dev/null 2>&1 || { echo ""; echo "  ✗ bank portal not reachable at $(PORTAL)."; echo "    Bring the stack up first:  make up-staged && make seed && make smoke"; echo ""; exit 1; }
+	@$(MAKE) -s _login
+	@docker start bankobs-$(DEMO_DEP) >/dev/null 2>&1 || true
+	@printf "  (warming up a healthy baseline"; for i in 1 2 3 4 5 6 7 8 9 10 11 12; do $(MAKE) -s _pay REMARK=warmup 2>/dev/null | jq -e '.ok==true' >/dev/null 2>&1 && break; printf "."; sleep 5; done; echo ")"
+	@echo ""; echo "════════ 1 · HEALTHY ══════════════════════════════════════"
+	@echo "A UPI payment on a healthy system:"
+	@$(MAKE) -s _pay REMARK=healthy | jq -c '{ok,status,traceId}'
+	@$(MAKE) -s _demo-pause
+	@echo ""; echo "════════ 2 · INCIDENT — a real dependency dies ════════════"
+	@echo "Stopping bankobs-$(DEMO_DEP) (every payment depends on it)…"
+	@docker stop bankobs-$(DEMO_DEP) >/dev/null
+	@echo ""; echo ">> BLIND: the same payment now fails — from the outside, this is all you get:"
+	@R=$$($(MAKE) -s _pay REMARK=incident); echo "$$R" | jq -c '{ok,status,traceId}'; echo "$$R" > /tmp/demo-fail.json
+	@echo ""; echo "   (driving 40 payments so the SLO reacts…)"
+	@for i in $$(seq 1 40); do $(MAKE) -s _pay REMARK=load >/dev/null 2>&1 & done; wait
+	@$(MAKE) -s _demo-pause
+	@echo ""; echo "════════ 3 · OBVIOUS — the signals name the cause ═════════"
+	@echo "• Firing alerts (Prometheus $(PROM)/alerts):"
+	@n=0; for i in $$(seq 1 24); do \
+	   n=$$(curl -s $(PROM)/api/v1/alerts 2>/dev/null | jq -r '[.data.alerts[]|select(.state=="firing")]|length' 2>/dev/null || echo 0); \
+	   [ "$${n:-0}" -gt 0 ] && break; sleep 5; done; \
+	   curl -s $(PROM)/api/v1/alerts 2>/dev/null | jq -r '.data.alerts[]|select(.state=="firing")|"    \(.labels.alertname)  severity=\(.labels.severity // "-")  team=\(.labels.team // "-")"' 2>/dev/null | sort -u | head -6; \
+	   [ "$${n:-0}" -gt 0 ] || echo "    (no alert rule tripped — the trace + log below name the cause directly)"
+	@echo ""; echo "• The failed request's TRACE (Jaeger) — the errored span names the broken hop:"
+	@TID=$$(jq -r '.traceId // empty' /tmp/demo-fail.json 2>/dev/null); \
+	   if [ -n "$$TID" ]; then \
+	     for i in 1 2 3 4 5 6 7 8; do \
+	       OUT=$$(curl -s "$(JAEGER)/api/traces/$$TID" 2>/dev/null | jq -r '(.data[0].spans // [])[] | ((.tags//[])|from_entries) as $$t | select(($$t.error==true) or ($$t["otel.status_code"]=="ERROR") or (($$t["http.status_code"]//0)>=500)) | "    \(.operationName)  \($$t["otel.status_description"] // ("HTTP "+(($$t["http.status_code"]//0)|tostring)))"' 2>/dev/null | head -4); \
+	       [ -n "$$OUT" ] && { echo "$$OUT"; break; }; sleep 3; \
+	     done; \
+	     echo "    open: $(JAEGER)/trace/$$TID"; \
+	   else echo "    (no traceId captured — open $(JAEGER))"; fi
+	@echo ""; echo "• The LOG line naming the cause (Loki):"
+	@L=$$(curl -s -G "$(LOKI)/loki/api/v1/query_range" \
+	   --data-urlencode 'query={service="upi-service"} |= "upi-payment-failed"' \
+	   --data-urlencode 'limit=1' --data-urlencode 'direction=backward' \
+	   --data-urlencode "start=$$(($$(date +%s)-300))000000000" 2>/dev/null \
+	   | jq -r '.data.result[0].values[0][1] // empty' 2>/dev/null); \
+	   if [ -n "$$L" ]; then echo "$$L" | jq -r '"    status=\(.status)   \(.fail_reason // .message)"' 2>/dev/null; \
+	   else echo "    (Grafana Explore -> Loki:  {service=\"upi-service\"} |= \"upi-payment-failed\")"; fi
+	@$(MAKE) -s _demo-pause
+	@echo ""; echo "════════ 4 · RECOVER ══════════════════════════════════════"
+	@docker start bankobs-$(DEMO_DEP) >/dev/null; echo "bankobs-$(DEMO_DEP) restarted — payments recover as it goes healthy."
+	@echo "Live views →  Grafana $(GRAFANA)   Jaeger $(JAEGER)   Prometheus $(PROM)/alerts"
+
+_demo-pause:
+	@if [ "$(DEMO_STEP)" = "1" ] && [ -e /dev/tty ]; then printf "\n  ▶ press Enter to continue…" > /dev/tty; read _ < /dev/tty; fi
+
+_pay:
+	@curl -s -m 10 -b $(COOKIE) -X POST $(PORTAL)/api/upi/pay -H 'Content-Type: application/json' \
+	  -d '{"from_vpa":"cust00000001@bankobs","to_vpa":"cust00000002@bankobs","amount":10,"remarks":"demo-$(REMARK)"}'
 
 urls:                ## Print all useful URLs
 	@echo "  🏦  Portal    : $(PORTAL)        (login: $(CUST) / $(PASS))"
