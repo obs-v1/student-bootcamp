@@ -13,6 +13,7 @@ Works natively (the images are x86_64). Checklist:
 
 4. You can deploy the services using `cd ec2-k8s && make up`
 
+Portal login details : `CUST-00000001` / `Training@123`.
 
 ## These all can be alternatively initate with terraform code.
 
