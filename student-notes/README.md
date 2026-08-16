@@ -11,7 +11,6 @@ everything yourself; that's the point.
 | B3 — Containers & Kubernetes Recap | [B3-containers-kubernetes.md](B3-containers-kubernetes.md) | the training server (app running) |
 | B4 — Application Setup | [B4-application-setup.md](B4-application-setup.md) | the training server (app running) |
 
-Suggested order: B1 → B2 → B3 → B4. Each ends with a hands-on section —
-don't skip those; the labs in the main course assume you did them.
 
-Portal login used throughout: `CUST-00000001` / `Training@123`.
+
+
