@@ -20,3 +20,10 @@ Works natively (the images are x86_64). Checklist:
 make tf-apply
 ```
 
+
+
+# Reference for students - Recalling some commands that are needed.
+
+https://github.com/obs-v1/student-bootcamp/blob/main/student-notes/README.md
+
+
