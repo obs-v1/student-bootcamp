@@ -870,3 +870,76 @@ tf-destroy: tf-install
 	terraform init
 	terraform destroy -auto-approve
 
+# ──────────────────────────────────────────────────────────────────────────────
+#  REMOTE KUBECONFIG (drive the EC2 kind cluster from the machine you ran tf-apply on)
+# ──────────────────────────────────────────────────────────────────────────────
+
+# `make tf-apply` builds an EC2 box and runs `ec2-k8s/make up` on it, which
+# creates a *kind* cluster there. kind binds that cluster's API server to
+# 127.0.0.1:<random-port> on the instance, so it isn't reachable from here, and
+# its serving cert has no SAN for the public IP. scripts/expose-kube-api.sh
+# fixes both without touching the cluster: a socat unit republishes the API on
+# :$(KUBE_API_PORT), and the kubeconfig below pins verification to the name
+# "kubernetes" (already a SAN) via tls-server-name. TLS verification stays ON.
+# See that script's header for the full reasoning.
+
+EC2_USER        ?= ec2-user
+EC2_PASS        ?= DevOps321
+# Lazily evaluated — terraform is only shelled out to when a target uses it.
+EC2_HOST        ?= $(shell terraform output -raw public_ip 2>/dev/null)
+KIND_CLUSTER    ?= bankobs
+KUBECONFIG_OUT  ?= $(HOME)/.kube/bankobs-ec2.config
+KUBE_API_PORT   ?= 6443
+KUBE_CONTEXT    ?= bankobs-ec2
+# Spot boxes recycle IPs, so don't pollute (or trip over) known_hosts.
+SSH_OPTS        := -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR \
+                   -o ConnectTimeout=10
+# The instance has no key pair — terraform provisions it over SSH *password*
+# auth. sshpass makes that non-interactive; without it ssh just prompts.
+SSH_WRAP         = $(shell command -v sshpass >/dev/null 2>&1 && echo sshpass -p '$(EC2_PASS)')
+
+.PHONY: kubeconfig kube-check
+
+kubeconfig:          ## Fetch a kubeconfig for the EC2 kind cluster (uses the instance's public IP)
+	@command -v ssh >/dev/null || { echo "✗ ssh not found"; exit 1; }
+	@command -v sshpass >/dev/null 2>&1 || \
+	  echo "  note: sshpass not installed — ssh will prompt for the password ($(EC2_PASS))"
+	@HOST="$(EC2_HOST)"; \
+	if [ -z "$$HOST" ]; then \
+	  echo "  ✗ no EC2 host found."; \
+	  echo "    Run 'make tf-apply' first, or pass one explicitly:  make kubeconfig EC2_HOST=<ip>"; \
+	  exit 1; \
+	fi; \
+	mkdir -p $(dir $(KUBECONFIG_OUT)); \
+	echo "→ $(EC2_USER)@$$HOST: exposing the '$(KIND_CLUSTER)' API server and fetching its kubeconfig…"; \
+	$(SSH_WRAP) ssh $(SSH_OPTS) "$(EC2_USER)@$$HOST" \
+	  "PUBLIC_IP='$$HOST' CLUSTER='$(KIND_CLUSTER)' LISTEN_PORT='$(KUBE_API_PORT)' \
+	   CONTEXT_NAME='$(KUBE_CONTEXT)' bash -s" \
+	  < scripts/expose-kube-api.sh > "$(KUBECONFIG_OUT).tmp" || true; \
+	if ! grep -q 'server: https://' "$(KUBECONFIG_OUT).tmp" 2>/dev/null; then \
+	  rm -f "$(KUBECONFIG_OUT).tmp"; \
+	  echo "  ✗ no kubeconfig came back (see the errors above)."; \
+	  echo "    ssh $(EC2_USER)@$$HOST 'kind get clusters'   # expect: $(KIND_CLUSTER)"; \
+	  exit 1; \
+	fi; \
+	mv "$(KUBECONFIG_OUT).tmp" "$(KUBECONFIG_OUT)"; \
+	chmod 600 "$(KUBECONFIG_OUT)"; \
+	echo ""; \
+	echo "  ✓ wrote $(KUBECONFIG_OUT)  (context: $(KUBE_CONTEXT) → $$HOST:$(KUBE_API_PORT))"; \
+	echo ""; \
+	echo "      export KUBECONFIG=$(KUBECONFIG_OUT)"; \
+	echo "      kubectl get nodes && kubectl -n bankobs get pods"; \
+	echo ""; \
+	echo "  ⚠ the Kubernetes API is now reachable on the public internet; that file"; \
+	echo "    is a cluster-admin credential — keep it (and the security group) tight."
+
+kube-check:          ## Verify the fetched kubeconfig actually reaches the cluster
+	@[ -f "$(KUBECONFIG_OUT)" ] || { echo "✗ run 'make kubeconfig' first"; exit 1; }
+	@command -v kubectl >/dev/null || { echo "✗ kubectl not installed on this machine"; exit 1; }
+	@echo "→ $$(sed -n 's|.*server: \(.*\)|\1|p' "$(KUBECONFIG_OUT)" | head -1)"
+	@KUBECONFIG="$(KUBECONFIG_OUT)" kubectl get nodes && \
+	 KUBECONFIG="$(KUBECONFIG_OUT)" kubectl -n bankobs get pods --no-headers 2>/dev/null | \
+	   awk '{print $$3}' | sort | uniq -c || \
+	 { echo ""; echo "  ✗ could not reach the cluster. Check that :$(KUBE_API_PORT) is open in the"; \
+	   echo "    security group, then re-run 'make kubeconfig' (it repairs the forwarder)."; exit 1; }
+

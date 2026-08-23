@@ -128,7 +128,10 @@ resource "null_resource" "deploy_app" {
       "cd student-bootcamp",
       "sed -e '/^LICENSE_KEY/ c LICENSE_KEY=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjb2hvcnRAYmFua29ic2VydmUzNjAudHJhaW5pbmciLCJodyI6IioiLCJ0aWVyIjoic3R1ZGVudCIsImZlYXR1cmVzIjpbImFsbCJdLCJqdGkiOiI0NDY4OTRhNS00NDg5LTQ5ZDctOGE2Mi0zM2FkYTYxY2MwNjMiLCJpc3MiOiJiYW5rb2JzZXJ2ZTM2MCIsImV4cCI6MTc5ODgwMzM0MSwiaWF0IjoxNzgzMjUxMzQxfQ.RuC_RlHu6yHRrLglVd_ExZynHq1Lb9nlYruoyFfEO5Hk1uU7PU9z5b_F9F7nzW3Hj3MHVJMj5MhGOjYYZWeiAQ' .env.example >.env",
       "cd ec2-k8s && make up",
-      "cd ~/student-bootcamp && make loadrunner"
+      "cd ~/student-bootcamp && make loadrunner",
+      # Republish the kind API server on :6443 so `make kubeconfig` can hand you
+      # a kubeconfig pointing at THIS instance's public IP. Idempotent.
+      "cd ~/student-bootcamp && bash scripts/expose-kube-api.sh >/dev/null"
     ]
 
     connection {
