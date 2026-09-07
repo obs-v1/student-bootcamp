@@ -28,3 +28,16 @@ make tf-apply
 https://github.com/obs-v1/student-bootcamp/blob/main/student-notes/README.md
 
 
+# Workstation Setup.
+
+In case if you are struggling wiht local setup of Laptop then use a Linux box as workstation.
+
+1. Create a EC2 instance with the given AMI
+
+https://us-east-1.console.aws.amazon.com/ec2/home?region=us-east-1#Images:visibility=public-images;imageName=Redhat-9-DevOps-Practice;v=3;$case=tags:false%5C,client:false;$regex=tags:false%5C,client:false
+
+2. Create a IAM role For Ec2 with Admin Policy & Attach that to workstation ( ec2 )
+
+3. Connect to that instance with your Key or Username / Password : ec2-user / DevOps321
+
+
