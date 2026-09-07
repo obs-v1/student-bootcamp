@@ -41,3 +41,7 @@ https://us-east-1.console.aws.amazon.com/ec2/home?region=us-east-1#Images:visibi
 3. Connect to that instance with your Key or Username / Password : ec2-user / DevOps321
 
 
+
+# Google Document
+
+https://docs.google.com/document/d/1dnDU0_FQEgWm75ftqJhCWwstdsrsSEI2VEq-lqWYCMU/edit?usp=sharing
