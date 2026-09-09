@@ -13,6 +13,8 @@ ARCH="$(uname -m)"
 say() { echo -e "\n─── $* ───"; }
 
 labauto docker-stack
+labauto k9s
+
 
 # ── kubectl (latest stable) ──────────────────────────────────────────────────
 if ! command -v kubectl >/dev/null 2>&1; then
