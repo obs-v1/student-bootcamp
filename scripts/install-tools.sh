@@ -14,6 +14,7 @@ say() { echo -e "\n─── $* ───"; }
 
 labauto docker-stack
 labauto k9s
+labauto kubens
 
 
 # ── kubectl (latest stable) ──────────────────────────────────────────────────
