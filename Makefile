@@ -626,14 +626,22 @@ _login:
 	  -H 'Content-Type: application/json' \
 	  -d '{"customer_id":"$(CUST)","password":"$(PASS)"}' > /dev/null
 
-.PHONY: loadrunner loadrunner-stop loadrunner-logs
+.PHONY: loadrunner loadrunner-stop loadrunner-logs loadrunner-sweep
 
-loadrunner:          ## Install + start the always-on background load runner (systemd)
+loadrunner:          ## Install + start the always-on load runner: all journeys + all 59 services (systemd)
 	chmod +x scripts/loadrunner.sh
 	sudo cp scripts/bankobs-loadrunner.service /etc/systemd/system/bankobs-loadrunner.service
 	sudo systemctl daemon-reload
 	sudo systemctl enable --now bankobs-loadrunner
-	@echo "✓ loadrunner running (gentle always-on journey traffic). Logs: make loadrunner-logs"
+	@echo "✓ loadrunner running: portal journeys every ~2s + a sweep of all 59 services every ~30s."
+	@echo "  Logs: make loadrunner-logs   ·   One-shot sweep now: make loadrunner-sweep"
+	@echo "  Tunables (override in the unit): INTERVAL, FAIL_PCT, SWEEP_EVERY, NS"
+
+loadrunner-sweep:    ## Run ONE service sweep now (every service gets a request) and show the coverage
+	@SWEEP_EVERY=1 INTERVAL=1 timeout 25 scripts/loadrunner.sh 2>&1 | head -4 || true
+	@echo "→ services now reporting RED metrics:"
+	@curl -s --data-urlencode 'query=count(count by(service)(http_server_requests_total))' \
+	   http://localhost:9090/api/v1/query | jq -r '"   " + (.data.result[0].value[1] // "0") + " of 59"'
 
 loadrunner-stop:     ## Stop + disable the background load runner
 	-sudo systemctl disable --now bankobs-loadrunner

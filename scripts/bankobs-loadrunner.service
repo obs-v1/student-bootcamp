@@ -2,8 +2,21 @@
 # Installed + started by `make loadrunner` (and automatically by `make tf-apply`).
 # It waits for the portal, then keeps a gentle stream of journeys flowing so the
 # dashboards, traces and SLOs always have live data.
+#
+# Two tiers (see scripts/loadrunner.sh):
+#   1. portal journeys  — real user paths, multi-span traces
+#   2. service sweep    — every SWEEP_EVERY cycles, hits all 59 services from
+#                         inside the cluster via kubectl, because Kubernetes
+#                         publishes only four host ports and ~35 services have
+#                         no user-facing route at all.
+#
+# The sweep needs kubectl and a kubeconfig. Both belong to ec2-user (kind was
+# created by `make up` as ec2-user, kubectl lives in /usr/local/bin, which is on
+# systemd's default PATH) — which is why User=ec2-user below matters. If the
+# sweep cannot reach a cluster it logs "sweep: DISABLED" once and the portal
+# journeys carry on regardless.
 [Unit]
-Description=bankobs continuous load runner (gentle always-on journey traffic)
+Description=bankobs continuous load runner (all journeys + all services)
 After=network-online.target
 Wants=network-online.target
 
@@ -12,6 +25,8 @@ Type=simple
 User=ec2-user
 Environment=PORTAL=http://localhost
 Environment=INTERVAL=2
+Environment=SWEEP_EVERY=15
+Environment=NS=bankobs
 ExecStart=/home/ec2-user/student-bootcamp/scripts/loadrunner.sh
 Restart=always
 RestartSec=15
