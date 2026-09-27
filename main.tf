@@ -102,7 +102,7 @@ resource "null_resource" "make_instance_ready" {
   provisioner "remote-exec" {
     inline = [
       "rm -rf student-bootcamp code-blocks",
-      "git clone https://github.com/obs-v1/code-blocks.git"
+      "git clone https://github.com/obs-v1/code-blocks.git",
       "git clone https://github.com/obs-v1/student-bootcamp.git",
       "cd student-bootcamp",
       "sudo bash scripts/install-tools.sh",
