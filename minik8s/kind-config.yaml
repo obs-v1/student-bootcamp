@@ -1,0 +1,25 @@
+# kind topology for the minik8s lab box — a single control-plane node and
+# nothing else. Edit this file and re-run `make tf-apply` (after `make
+# cluster-down`) to reshape the cluster.
+#
+# extraPortMappings publish the kind node's NodePorts on the EC2 host, so a
+# `type: NodePort` Service on 30080 is reachable at http://<ec2-ip>/ with no
+# port-forward. The security group already opens every port.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: minik8s
+nodes:
+  - role: control-plane
+    # Kubernetes version is pinned here so it doesn't drift with the kind
+    # binary. Needs kind >= v0.32.0 (see ../scripts/install-tools.sh).
+    image: kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5
+    extraPortMappings:
+      - containerPort: 30080   # → http://<ec2-ip>/
+        hostPort: 80
+        protocol: TCP
+      - containerPort: 30443   # → https://<ec2-ip>/
+        hostPort: 443
+        protocol: TCP
+      - containerPort: 30800   # → http://<ec2-ip>:8080/
+        hostPort: 8080
+        protocol: TCP
