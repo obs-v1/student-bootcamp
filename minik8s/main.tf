@@ -130,6 +130,7 @@ resource "null_resource" "make_instance_ready" {
     inline = [
       "rm -rf student-bootcamp",
       "git clone https://github.com/obs-v1/student-bootcamp.git",
+      "git clone https://github.com/obs-v1/code-blocks.git",
       "cd student-bootcamp",
       "sudo bash scripts/install-tools.sh",
       # So the NEXT connection can run docker without sudo. Group membership is
