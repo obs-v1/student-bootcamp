@@ -199,13 +199,3 @@ output "public_ip" {
   description = "Public IP address to connect to the instance"
   value       = aws_instance.spot.public_ip
 }
-
-output "cluster_name" {
-  description = "Name of the kind cluster running on the instance"
-  value       = local.cluster_name
-}
-
-output "next_steps" {
-  description = "What to run once apply finishes"
-  value       = "make kubeconfig && make kube-check   (or: make ssh)"
-}

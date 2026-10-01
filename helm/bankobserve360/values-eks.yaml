@@ -14,3 +14,12 @@ global:
   # EKS: EBS-CSI-backed storage for the stateful set (Oracle, Cassandra,
   # Kafka, Elasticsearch, Postgres, Mongo, Redis).
   storageClass: gp2
+
+# Fault injector: deployed with the platform, scaled to zero. Arm it only when
+# a lab needs it —  make eks-fault-up  (or kubectl scale --replicas=1).
+fault-injector:
+  enabled: true
+  faultInjector:
+    replicas: 0
+    platform: kubernetes      # no Docker socket on EKS — drive the K8s API
+    allowObservability: false

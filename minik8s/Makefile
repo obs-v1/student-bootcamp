@@ -40,7 +40,7 @@ SSH_WRAP         = $(shell command -v sshpass >/dev/null 2>&1 && echo sshpass -p
 #  PROVISION
 # ──────────────────────────────────────────────────────────────────────────────
 
-.PHONY: tf-install tf-apply tf-destroy tf-plan ip _post-apply
+.PHONY: tf-install tf-apply tf-destroy tf-plan ip
 
 tf-install:
 	command -v terraform >/dev/null 2>&1 || sudo labauto terraform
@@ -48,16 +48,6 @@ tf-install:
 tf-apply: tf-install  ## Create the EC2 spot box and the kind cluster on it
 	terraform init
 	terraform apply -auto-approve
-	@$(MAKE) -s _post-apply
-
-_post-apply:
-	@echo ""
-	@echo "  ✓ instance up at $$(terraform output -raw public_ip 2>/dev/null) with an empty kind cluster."
-	@echo ""
-	@echo "      make kubeconfig     # write a kubeconfig for it on this machine"
-	@echo "      make kube-check     # kubectl get nodes, through that kubeconfig"
-	@echo "      make ssh            # shell on the box"
-	@echo ""
 
 tf-plan: tf-install   ## Show what an apply would change
 	terraform init -input=false

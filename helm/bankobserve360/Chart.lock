@@ -29,5 +29,8 @@ dependencies:
 - name: loadrunner
   repository: file://../charts/loadrunner
   version: 1.0.0
-digest: sha256:89e54696243216ca61437d2c693bc06f23fd120980a0fc75a6f57d68620fc022
-generated: "2026-06-06T22:06:02.367821+05:30"
+- name: fault-injector
+  repository: file://../charts/fault-injector
+  version: 1.0.0
+digest: sha256:ab452dcc694c907f2260ab8cec4d9c97769d204d172871abbce9e96965ac404a
+generated: "2026-09-22T00:59:29.959368+05:30"

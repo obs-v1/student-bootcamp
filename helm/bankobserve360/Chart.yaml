@@ -48,3 +48,7 @@ dependencies:
     version: 1.0.0
     repository: file://../charts/loadrunner
     condition: loadrunner.enabled
+  - name: fault-injector
+    version: 1.0.0
+    repository: file://../charts/fault-injector
+    condition: fault-injector.enabled
