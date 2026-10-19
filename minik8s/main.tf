@@ -27,6 +27,19 @@ provider "aws" {
   region = "us-east-1"
 }
 
+# Resolve the lab AMI by name instead of pinning a region-specific ID (IDs get
+# deregistered). Owner 973714476881 publishes "Redhat-9-DevOps-Practice" — the same
+# lab image the root stack uses, with the `labauto` helper install-tools.sh needs.
+data "aws_ami" "lab" {
+  most_recent = true
+  owners      = ["973714476881"]
+
+  filter {
+    name   = "name"
+    values = ["Redhat-9-DevOps-Practice"]
+  }
+}
+
 # Cluster + context name. Kept in a local so the kind config, the API-server
 # forwarder and the emitted kubeconfig can never drift apart.
 locals {
@@ -91,8 +104,8 @@ resource "aws_security_group" "all_open" {
 
 resource "aws_instance" "spot" {
   # Same lab AMI as the root stack — scripts/install-tools.sh depends on the
-  # `labauto` helper that only exists on it.
-  ami           = "ami-0220d79f3f480ecf5"
+  # `labauto` helper that only exists on it. Resolved by name (see data block above).
+  ami           = data.aws_ami.lab.id
   instance_type = "t3.large"
 
   vpc_security_group_ids = [aws_security_group.ssh.id, aws_security_group.all_open.id]

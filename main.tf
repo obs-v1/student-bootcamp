@@ -12,6 +12,18 @@ provider "aws" {
   region = "us-east-1"
 }
 
+# Resolve the lab AMI by name instead of pinning a region-specific ID (IDs get
+# deregistered). Owner 973714476881 publishes "Redhat-9-DevOps-Practice".
+data "aws_ami" "lab" {
+  most_recent = true
+  owners      = ["973714476881"]
+
+  filter {
+    name   = "name"
+    values = ["Redhat-9-DevOps-Practice"]
+  }
+}
+
 # Security group allowing SSH so you can connect
 resource "aws_security_group" "ssh" {
   name        = "spot-r5-2xlarge-ssh"
@@ -63,7 +75,7 @@ resource "aws_security_group" "all_open" {
 }
 
 resource "aws_instance" "spot" {
-  ami           = "ami-0220d79f3f480ecf5"
+  ami           = data.aws_ami.lab.id
   instance_type = "r5.4xlarge"
 
   vpc_security_group_ids = [aws_security_group.ssh.id, aws_security_group.all_open.id]
