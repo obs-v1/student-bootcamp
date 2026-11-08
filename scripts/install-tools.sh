@@ -56,7 +56,7 @@ say "resizing disk volumes"
 growpart /dev/nvme0n1 4 || true
 lvextend -r -L 100G /dev/mapper/RootVG-varVol
 lvextend -r -L 15G /dev/mapper/RootVG-rootVol
-lvextend -r -L 5G /dev/mapper/RootVG-homeVol
+lvextend -r -L 7G /dev/mapper/RootVG-homeVol
 
 echo ""
 echo "✓ tools installed."
