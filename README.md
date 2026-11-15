@@ -9,7 +9,7 @@ Works natively (the images are x86_64). Checklist:
 1. Instance: **r5.4xlarge minimum** (16 vCPU / 128 GB), **150 GB gp3** root volume. Prefer to take spot to save the cost.
 2. Install Docker + the compose. You can clone this repo and run `bash scripts/install-tools.sh`
 3. Setup license - 
-`sed -e '/^LICENSE_KEY/ c LICENSE_KEY=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjb2hvcnRAYmFua29ic2VydmUzNjAudHJhaW5pbmciLCJodyI6IioiLCJ0aWVyIjoic3R1ZGVudCIsImZlYXR1cmVzIjpbImFsbCJdLCJqdGkiOiI0NDY4OTRhNS00NDg5LTQ5ZDctOGE2Mi0zM2FkYTYxY2MwNjMiLCJpc3MiOiJiYW5rb2JzZXJ2ZTM2MCIsImV4cCI6MTc5ODgwMzM0MSwiaWF0IjoxNzgzMjUxMzQxfQ.RuC_RlHu6yHRrLglVd_ExZynHq1Lb9nlYruoyFfEO5Hk1uU7PU9z5b_F9F7nzW3Hj3MHVJMj5MhGOjYYZWeiAQ' .env.example >.env`
+`sed -e '/^LICENSE_KEY/ c LICENSE_KEY=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyYWdodWsudml0QGdtYWlsLmNvbSIsImh3IjoiKiIsInRpZXIiOiJzdHVkZW50IiwiZmVhdHVyZXMiOlsiYWxsIl0sImp0aSI6ImFlNmEzM2NhLTk5NGYtNDkzMC1hMGFiLTQ4ZTQ0OTI0OWRjNSIsImx2IjoyLCJpc3MiOiJiYW5rb2JzZXJ2ZTM2MCIsImV4cCI6MTc5NjA1NTg3OCwiaWF0IjoxNzk0NzU5ODc4fQ.VQN6UDfk4ttHJUwS4IjBQPMOq7lyTkR54Oh-oyBKaARl5SDBS2OWHMoCT3EVP1FX40zLhe5Yx2_Schxy3qAOBQ' .env.example >.env`
 
 4. You can deploy the services using `cd ec2-k8s && make up`
 
